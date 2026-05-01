@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table (name = "usuario")
@@ -34,4 +35,13 @@ public class Usuario {
 
     @Column (name = "criadoem")
     private LocalDateTime criadoEm;
+
+    @OneToMany (mappedBy = "usuario", fetch = FetchType.LAZY)
+    private List<Desempenho> desempenhos;
+
+    @OneToMany (mappedBy = "usuario", fetch = FetchType.LAZY)
+    private List<Materia> materias;
+
+    @OneToMany (mappedBy = "usuario", fetch = FetchType.LAZY)
+    private List<Agenda> agenda;
 }

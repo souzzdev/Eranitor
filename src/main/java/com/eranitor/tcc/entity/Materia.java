@@ -3,6 +3,9 @@ package com.eranitor.tcc.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Fetch;
+
+import java.util.List;
 
 @Table (name = "materia")
 @Entity
@@ -24,4 +27,7 @@ public class Materia {
 
     @Column (name = "ativa")
     private Boolean ativa;
+
+    @OneToMany (mappedBy = "materia", fetch = FetchType.LAZY)
+    private List<Desempenho> desempenhos;
 }
