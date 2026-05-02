@@ -16,11 +16,11 @@ public class Desempenho {
     private Long idDesempenho;
 
     @ManyToOne
-    @Column (name = "materia_idmateria")
+    @JoinColumn (name = "materia_idmateria")
     private Materia materia;
 
     @ManyToOne
-    @Column (name = "usuario_idusuario")
+    @JoinColumn (name = "usuario_idusuario")
     private Usuario usuario;
 
     @Column (name = "mes")

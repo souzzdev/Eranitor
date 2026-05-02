@@ -30,4 +30,7 @@ public class Materia {
 
     @OneToMany (mappedBy = "materia", fetch = FetchType.LAZY)
     private List<Desempenho> desempenhos;
+
+    @OneToMany (mappedBy = "materia", fetch = FetchType.LAZY)
+    private List<Topico> topicos;
 }
