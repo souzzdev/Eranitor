@@ -1,4 +1,4 @@
 package com.eranitor.tcc.dto;
 
-public record AuthenticationDTO(String login, String senhaHash) {
+public record AuthenticationDTO(String email, String password) {
 }

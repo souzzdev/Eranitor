@@ -14,7 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.ErrorResponse;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("auth")
@@ -36,16 +39,72 @@ public class AuthenticationController {
     private AuthenticationManager authenticationManager;
 
     @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
     private UsuarioRepositoy repositoy;
 
     @PostMapping("/login")
-    public ResponseEntity login(@RequestBody @Valid AuthenticationDTO data) {
-        var userNamePassword = new UsernamePasswordAuthenticationToken(data.login(), data.senhaHash());
-        var auth = this.authenticationManager.authenticate(userNamePassword);
+    public ResponseEntity<?> login(@RequestBody @Valid AuthenticationDTO data) {
 
-        var token = tokenService.generateToken((Usuario) auth.getPrincipal());
+        try {
 
-        return ResponseEntity.ok(new LoginResponseDTO(token));
+            Optional<Usuario> usuarioOpt = repositoy.findByLogin(data.email());
+
+            if (usuarioOpt.isEmpty()) {
+                return ResponseEntity
+                        .status(HttpStatus.UNAUTHORIZED)
+                        .body(new ErrorResponseDTO(
+                                401,
+                                "Email ou senha inválidos"
+                        ));
+            }
+
+            Usuario usuario = usuarioOpt.get();
+
+            if (!passwordEncoder.matches(data.password(), usuario.getPassword())) {
+                return ResponseEntity
+                        .status(HttpStatus.UNAUTHORIZED)
+                        .body(new ErrorResponseDTO(
+                                401,
+                                "Email ou senha inválidos"
+                        ));
+            }
+
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            data.email(),
+                            data.password()
+                    )
+            );
+
+            Usuario usuarioAutenticado = (Usuario) authentication.getPrincipal();
+
+            String token = null;
+            if (usuarioAutenticado != null) {
+                token = tokenService.generateToken(usuarioAutenticado);
+            }
+
+            return ResponseEntity.ok(new LoginResponseDTO(token));
+
+        } catch (BadCredentialsException e) {
+
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResponseDTO(
+                            401,
+                            "Email ou senha inválidos"
+                    ));
+
+        } catch (Exception e) {
+
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponseDTO(
+                            500,
+                            "Erro ao fazer login: " + e.getMessage()
+                    ));
+        }
     }
 
     @PostMapping("/register")
