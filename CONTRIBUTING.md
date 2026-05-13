@@ -250,7 +250,7 @@ wget https://github.com/google/google-java-format/releases/download/v1.17.0/goog
 #### Estrutura de Classe
 
 ```java
-package com.eranitor.tcc.service;
+package com.eranitor.tcc.services;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -258,7 +258,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Serviço responsável pela lógica de tarefas.
- * 
+ *
  * <p>Responsabilidades:
  * - CRUD de tarefas
  * - Cálculo de prioridade
@@ -268,35 +268,35 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional
 public class TarefaService {
-  
-  private final TarefaRepository tarefaRepository;
-  private final UsuarioRepository usuarioRepository;
-  
-  /**
-   * Cria uma nova tarefa para o usuário.
-   * 
-   * @param usuarioId ID do usuário
-   * @param request dados da tarefa
-   * @return tarefa criada
-   * @throws UsuarioNaoEncontradoException se usuário não existe
-   */
-  public TarefaDto criar(Integer usuarioId, CriarTarefaRequest request) {
-    Usuario usuario = usuarioRepository.findById(usuarioId)
-        .orElseThrow(() -> new UsuarioNaoEncontradoException());
-    
-    Tarefa tarefa = new Tarefa();
-    tarefa.setUsuario(usuario);
-    tarefa.setTitulo(request.getTitulo());
-    // ... mapper completo
-    
-    Tarefa salva = tarefaRepository.save(tarefa);
-    return mapToDto(salva);
-  }
-  
-  private TarefaDto mapToDto(Tarefa tarefa) {
-    // Implementar mapeamento
-    return null;
-  }
+
+    private final TarefaRepository tarefaRepository;
+    private final UsuarioRepository usuarioRepository;
+
+    /**
+     * Cria uma nova tarefa para o usuário.
+     *
+     * @param usuarioId ID do usuário
+     * @param request dados da tarefa
+     * @return tarefa criada
+     * @throws UsuarioNaoEncontradoException se usuário não existe
+     */
+    public TarefaDto criar(Integer usuarioId, CriarTarefaRequest request) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new UsuarioNaoEncontradoException());
+
+        Tarefa tarefa = new Tarefa();
+        tarefa.setUsuario(usuario);
+        tarefa.setTitulo(request.getTitulo());
+        // ... mapper completo
+
+        Tarefa salva = tarefaRepository.save(tarefa);
+        return mapToDto(salva);
+    }
+
+    private TarefaDto mapToDto(Tarefa tarefa) {
+        // Implementar mapeamento
+        return null;
+    }
 }
 ```
 
@@ -307,7 +307,7 @@ public class TarefaService {
 | Classe | PascalCase | `TarefaService` |
 | Método | camelCase | `criarTarefa()` |
 | Constante | UPPER_SNAKE_CASE | `MAX_TAREFAS_DIA` |
-| Package | lowercase.dot.separated | `com.eranitor.tcc.service` |
+| Package | lowercase.dot.separated | `com.eranitor.tcc.services` |
 | Variable | camelCase | `usuarioId` |
 | Boolean | `is/has/can` | `isAtivo`, `hasPermissao` |
 
