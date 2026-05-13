@@ -50,26 +50,41 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     public ResponseEntity register (@RequestBody @Valid RegisterDTO data) {
-        if(this.repositoy.findByLogin(data.email()) != null) return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponseDTO(
-                409,
-                "Email já cadastrado no sistema"
-        ));
+        try {
+            if(this.repositoy.findByLogin(data.email()) != null) return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponseDTO(
+                    409,
+                    "Email já cadastrado no sistema"
+            ));
+            PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+            String encryptedPassword = passwordEncoder.encode(data.password());
 
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        String encryptedPassword = passwordEncoder.encode(data.password());
+            Usuario newUsuario = new Usuario();
 
-        Usuario newUsuario = new Usuario();
+            newUsuario.setLogin(data.email());
+            newUsuario.setPassword(encryptedPassword);
+            newUsuario.setNome(data.nome());
+            newUsuario.setInstituicao(data.instituicao());
+            newUsuario.setSerie(data.serie());
+            newUsuario.setRole(UsuarioRole.USER);
+            newUsuario.setCriadoEm(LocalDateTime.now());
 
-        newUsuario.setLogin(data.email());
-        newUsuario.setPassword(encryptedPassword);
-        newUsuario.setNome(data.nome());
-        newUsuario.setInstituicao(data.instituicao());
-        newUsuario.setSerie(data.serie());
-        newUsuario.setRole(UsuarioRole.USER);
-        newUsuario.setCriadoEm(LocalDateTime.now());
+            this.repositoy.save(newUsuario);
 
-        this.repositoy.save(newUsuario);
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(new ErrorResponseDTO(
+                            201,
+                            "Usuario registrado comn sucesso"
+                    ));
+        } catch (Exception exception) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponseDTO(
+                            500,
+                            "Erro ao registrar usuario: " + exception.getMessage()
+                    ));
+        }
 
-        return ResponseEntity.ok().build();
+
     }
 }
