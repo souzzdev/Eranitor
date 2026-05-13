@@ -2,7 +2,9 @@ package com.eranitor.tcc.entity;
 
 import com.eranitor.tcc.enums.UsuarioRole;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
@@ -15,6 +17,8 @@ import java.util.List;
 
 @Entity
 @Table (name = "usuario")
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 public class Usuario implements UserDetails {
@@ -31,7 +35,7 @@ public class Usuario implements UserDetails {
     private String login;
 
     @Column (name = "senhahash")
-    private String senhaHash;
+    private String password;
 
     @Column (name = "serie")
     private String serie;
@@ -43,6 +47,13 @@ public class Usuario implements UserDetails {
     private LocalDateTime criadoEm;
 
     private UsuarioRole role;
+
+    public Usuario (String login, String password, UsuarioRole role) {
+        this.login = login;
+        this.password = password;
+        this.role = role;
+
+    }
 
     @OneToMany (mappedBy = "usuario", fetch = FetchType.LAZY)
     private List<Desempenho> desempenhos;
@@ -61,7 +72,7 @@ public class Usuario implements UserDetails {
 
     @Override
     public @Nullable String getPassword() {
-        return senhaHash;
+        return password;
     }
 
     @Override
