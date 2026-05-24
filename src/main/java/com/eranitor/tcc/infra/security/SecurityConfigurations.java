@@ -24,7 +24,7 @@ public class SecurityConfigurations {
     @Bean
     public SecurityFilterChain securityFilterChain (HttpSecurity httpSecurity) {
         return httpSecurity
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/auth/**"))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
 

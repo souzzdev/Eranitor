@@ -20,10 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.ErrorResponse;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -46,71 +43,49 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid AuthenticationDTO data) {
-
         try {
 
             Optional<Usuario> usuarioOpt = repositoy.findByLogin(data.email());
+            System.out.println("Usuário encontrado: " + usuarioOpt.isPresent());
 
             if (usuarioOpt.isEmpty()) {
-                return ResponseEntity
-                        .status(HttpStatus.UNAUTHORIZED)
-                        .body(new ErrorResponseDTO(
-                                401,
-                                "Email ou senha inválidos"
-                        ));
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(new ErrorResponseDTO(401, "Email ou senha inválidos"));
             }
 
             Usuario usuario = usuarioOpt.get();
+            System.out.println("Senha no DB: " + usuario.getPassword());
+            System.out.println("Match: " + passwordEncoder.matches(data.password(), usuario.getPassword()));
 
             if (!passwordEncoder.matches(data.password(), usuario.getPassword())) {
-                return ResponseEntity
-                        .status(HttpStatus.UNAUTHORIZED)
-                        .body(new ErrorResponseDTO(
-                                401,
-                                "Email ou senha inválidos"
-                        ));
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(new ErrorResponseDTO(401, "Email ou senha inválidos"));
             }
 
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            data.email(),
-                            data.password()
-                    )
+                    new UsernamePasswordAuthenticationToken(data.email(), data.password())
             );
 
             Usuario usuarioAutenticado = (Usuario) authentication.getPrincipal();
-
-            String token = null;
-            if (usuarioAutenticado != null) {
-                token = tokenService.generateToken(usuarioAutenticado);
-            }
+            String token = (usuarioAutenticado != null) ? tokenService.generateToken(usuarioAutenticado) : null;
 
             return ResponseEntity.ok(new LoginResponseDTO(token));
 
         } catch (BadCredentialsException e) {
-
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body(new ErrorResponseDTO(
-                            401,
-                            "Email ou senha inválidos"
-                    ));
-
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResponseDTO(401, "Email ou senha inválidos"));
         } catch (Exception e) {
-
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponseDTO(
-                            500,
-                            "Erro ao fazer login: " + e.getMessage()
-                    ));
+            System.out.println("ERRO: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponseDTO(500, "Erro ao fazer login: " + e.getMessage()));
         }
     }
 
     @PostMapping("/register")
     public ResponseEntity register (@RequestBody @Valid RegisterDTO data) {
         try {
-            if(this.repositoy.findByLogin(data.email()) != null) return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponseDTO(
+            if(this.repositoy.findByLogin(data.email()).isPresent()) return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponseDTO(
                     409,
                     "Email já cadastrado no sistema"
             ));
@@ -145,5 +120,82 @@ public class AuthenticationController {
         }
 
 
+    }
+
+
+    @GetMapping("/validate")
+    public ResponseEntity<?> validateToken (@RequestHeader("Authorization") String authHeader) {
+        try {
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity
+                        .status(HttpStatus.UNAUTHORIZED)
+                        .body(new ErrorResponseDTO(
+                                401,
+                                "Token inválido ou expirado"
+                        ));
+            }
+
+            return ResponseEntity.ok("Token válido");
+        } catch (Exception e) {
+
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponseDTO(
+                            500,
+                            "Erro ao validar token"
+                    ));
+        }
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshToken (@RequestHeader("Authorization") String authHeader) {
+        try {
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity
+                        .status(HttpStatus.UNAUTHORIZED)
+                        .body(new ErrorResponseDTO(
+                                401,
+                                "Token não fornecido"
+                        ));
+            }
+
+            String token = authHeader.substring(7);
+
+            String login = tokenService.validateTokenForRefresh(token);
+
+            if (login == null) {
+                return ResponseEntity
+                        .status(HttpStatus.UNAUTHORIZED)
+                        .body(new ErrorResponseDTO(
+                                401,
+                                "Token inválido ou expirado"
+                        ));
+            }
+
+            var usuarioOpt = repositoy.findByLogin(login);
+
+            if (usuarioOpt.isEmpty()) {
+                return ResponseEntity
+                        .status(HttpStatus.NOT_FOUND)
+                        .body(new ErrorResponseDTO(
+                                404,
+                                "Usuário não encontrado"
+                        ));
+            }
+
+            Usuario usuario = usuarioOpt.get();
+
+            String newToken = tokenService.generateToken(usuario);
+
+            return ResponseEntity.ok(new LoginResponseDTO(newToken));
+
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponseDTO(
+                            500,
+                            "Erro ao renovar token."
+                    ));
+        }
     }
 }

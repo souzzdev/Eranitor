@@ -10,7 +10,7 @@ public record RegisterDTO(
         @NotBlank(message = "Senha não pode estar vazia")
         @Size(min = 8, message = "Senha deve ter no mínimo 8 caracteres")
         @Pattern(
-                regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@#$%^&+=!])",
+                regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!@#$%^&*+=]).{8,}$",
                 message = "Senha deve conter maiúsculas, minúsculas, números e caracteres especiais"
         )
         String password,
