@@ -17,7 +17,7 @@ public class UsuarioService {
 
 
     public ResponseEntity<?> cadastrarUsuario (Usuario usuario) {
-        if (repository.existsById(usuario.getIdUsuario())) {
+        if (repository.existsByLogin(usuario.getLogin())) {
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)
                     .body(new ErrorResponseDTO(
@@ -48,4 +48,22 @@ public class UsuarioService {
         return ResponseEntity.ok(usuario.get());
     }
 
+    public Usuario getPerfil (String login) {
+        return repository.findByLogin(login)
+                .orElseThrow(() ->
+                        new RuntimeException("Usuário não encontrado"));
+    }
+
+    public Usuario updatePerfil (String login, Usuario novosDados) {
+        Usuario usuario = repository.findByLogin(login)
+                .orElseThrow(() ->
+                        new RuntimeException("Usuário não encontrado"));
+
+        usuario.setLogin(novosDados.getLogin());
+        usuario.setNome(novosDados.getNome());
+        usuario.setInstituicao(novosDados.getInstituicao());
+        usuario.setSerie(novosDados.getSerie());
+
+        return repository.save(usuario);
+    }
 }
