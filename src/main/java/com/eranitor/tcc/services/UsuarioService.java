@@ -3,7 +3,7 @@ package com.eranitor.tcc.services;
 import com.eranitor.tcc.dto.AlterarSenhaDTO;
 import com.eranitor.tcc.dto.ErrorResponseDTO;
 import com.eranitor.tcc.entity.Usuario;
-import com.eranitor.tcc.repository.UsuarioRepositoy;
+import com.eranitor.tcc.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +15,7 @@ import java.util.Optional;
 @Service
 public class UsuarioService {
     @Autowired
-    UsuarioRepositoy repository;
+    UsuarioRepository repository;
 
     @Autowired
     private PasswordEncoder  passwordEncoder;

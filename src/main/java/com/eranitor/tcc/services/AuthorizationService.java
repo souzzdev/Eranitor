@@ -5,7 +5,7 @@ import com.eranitor.tcc.dto.RegisterDTO;
 import com.eranitor.tcc.entity.Usuario;
 import com.eranitor.tcc.enums.UsuarioRole;
 import com.eranitor.tcc.infra.security.TokenService;
-import com.eranitor.tcc.repository.UsuarioRepositoy;
+import com.eranitor.tcc.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,7 +23,7 @@ public class AuthorizationService
         implements UserDetailsService {
 
     @Autowired
-    private UsuarioRepositoy repository;
+    private UsuarioRepository repository;
 
     @Autowired
     private AuthenticationManager authenticationManager;

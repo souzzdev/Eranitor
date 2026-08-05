@@ -1,4 +1,11 @@
 package com.eranitor.tcc.repository;
 
-public class MateriaRepository {
+import com.eranitor.tcc.entity.Materia;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface MateriaRepository extends JpaRepository<Materia, Integer> {
+    Optional<Materia> findByNomeIgnoreCaseAndUsuarioId(String nome, Long usuairoId);
+
 }
