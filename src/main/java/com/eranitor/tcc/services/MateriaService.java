@@ -54,4 +54,11 @@ public class MateriaService {
        materiaRepository.save(materia);
     }
 
+
+    public void deleteMateria(Integer id) {
+        Materia materia = materiaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Matéria não encontrada!"));
+
+        materiaRepository.deleteById(id);
+    }
 }
