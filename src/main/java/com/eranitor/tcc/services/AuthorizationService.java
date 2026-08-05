@@ -52,13 +52,7 @@ public class AuthorizationService
 
     public void register(RegisterDTO data) {
 
-        if (repository.findByLogin(
-                data.email()).isPresent()) {
-
-            throw new IllegalArgumentException(
-                    "Email já cadastrado no sistema"
-            );
-        }
+        validateEmailUnique(data.email());
 
         Usuario usuario = new Usuario();
 
@@ -135,5 +129,12 @@ public class AuthorizationService
                         new UsernameNotFoundException(
                                 "Usuário não encontrado"
                         ));
+    }
+
+
+    private void validateEmailUnique(String email) {
+        if (repository.existsByLogin(email)) {
+            throw new IllegalArgumentException("Email já cadastrado!");
+        }
     }
 }

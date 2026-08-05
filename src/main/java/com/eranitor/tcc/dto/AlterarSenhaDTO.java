@@ -1,4 +1,4 @@
 package com.eranitor.tcc.dto;
 
-public record AlterarSenhaDTO() {
+public record AlterarSenhaDTO(String senhaAtual, String novaSenha, String confirmarSenha) {
 }
