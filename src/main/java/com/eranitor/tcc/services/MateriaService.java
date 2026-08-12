@@ -20,7 +20,7 @@ public class MateriaService {
 
 
     public void cadastrarMateria(MateriaDTO dto, Long usuarioId) {
-        if (materiaRepository.findByNomeIgnoreCaseAndUsuarioId(dto.nome(), usuarioId).isPresent()) {
+        if (materiaRepository.findByNomeIgnoreCaseAndUsuario_IdUsuario(dto.nome(), usuarioId).isPresent()) {
             throw new RuntimeException("Você já possui uma matéria com esse nome.");
         }
 
