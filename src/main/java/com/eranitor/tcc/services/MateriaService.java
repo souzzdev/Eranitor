@@ -38,7 +38,7 @@ public class MateriaService {
         materiaRepository.save(materia);
     }
 
-    public void updateMateria(MateriaDTO dto, Long usuarioId, Integer id) {
+    public void updateMateria(MateriaDTO dto, Long usuarioId, Long id) {
         Materia materia = materiaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Matéria não encontrada!"));
 
@@ -57,7 +57,7 @@ public class MateriaService {
     }
 
 
-    public void deleteMateria(Integer id) {
+    public void deleteMateria(Long id) {
         Materia materia = materiaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Matéria não encontrada!"));
 

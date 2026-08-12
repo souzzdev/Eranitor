@@ -18,7 +18,7 @@ public class TopicoService {
     private MateriaRepository materiaRepository;
 
     public void cadastrarTopico(CreateTopicoDTO dto, Long materiaId){
-        if (topicoRepository.findByNomeIgnoreCaseAndUsuario_IdMateria(dto.nome(), materiaId).isPresent()) {
+        if (topicoRepository.findByNomeIgnoreCaseAndMateria_IdMateria(dto.nome(), materiaId).isPresent()) {
             throw new IllegalArgumentException("Tópico já existe.");
         }
 
