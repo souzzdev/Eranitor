@@ -8,6 +8,8 @@ import com.eranitor.tcc.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 
 @Service
 public class MateriaService {
@@ -61,4 +63,16 @@ public class MateriaService {
 
         materiaRepository.deleteById(id);
     }
+
+    public List<Materia> getTodasMaterias(Long usuarioId) {
+        return materiaRepository.findAllByUsuario_IdUsuario(usuarioId);
+
+    }
+
+    public List<Materia> getMateriasAtivas(Long usuarioId) {
+        return materiaRepository.findAllByUsuario_IdUsuarioAndAtivaTrue(usuarioId);
+    }
+
+
+
 }
