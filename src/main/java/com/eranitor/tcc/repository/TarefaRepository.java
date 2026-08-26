@@ -26,4 +26,10 @@ public interface TarefaRepository extends JpaRepository<Tarefa, Long> {
     List<Tarefa> findByUsuarioIdUsuario(
             Long usuarioId
     );
+
+    Boolean existsByTituloIgnoreCaseAndMateria_IdMateriaAndUsuario_IdUsuario(
+            String titulo,
+            Long materiaId,
+            Long usuarioId
+    );
 }
