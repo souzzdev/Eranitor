@@ -13,7 +13,7 @@ public class Topico {
     @Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)
     @Column (name = "idtopico")
-    private Integer idTopico;
+    private Long idTopico;
 
     @ManyToOne
     @JoinColumn (name = "materia_idmateria")
