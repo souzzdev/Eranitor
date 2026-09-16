@@ -8,10 +8,7 @@ import java.util.List;
 
 public interface TarefaRepository extends JpaRepository<Tarefa, Long> {
     // RN008 - Listar tarefas de um usuário a partir de uma data
-    List<Tarefa> findByUsuarioIdUsuarioAndDataVencimentoGreaterThanEqual(
-            Long usuarioId,
-            LocalDate data
-    );
+    List<Tarefa> findByUsuarioIdUsuarioAndDataVencimentoGreaterThanEqual(Long usuarioId, LocalDate data);
 
     // RN008 - Listar tarefas por status
     List<Tarefa> findByUsuarioIdUsuarioAndConcluida(Long usuarioId, Boolean concluida);

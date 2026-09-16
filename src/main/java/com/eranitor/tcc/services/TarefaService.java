@@ -27,7 +27,7 @@ public class TarefaService {
     private MateriaRepository materiaRepository;
 
     public void createTarefa(Long usuarioId, Long materiaId, TarefaDTO dto) {
-        if(!tarefaRepository.existsByTituloIgnoreCaseAndMateria_IdMateriaAndUsuario_IdUsuario(
+        if(tarefaRepository.existsByTituloIgnoreCaseAndMateria_IdMateriaAndUsuario_IdUsuario(
                 dto.titulo(),
                 materiaId,
                 usuarioId
@@ -94,6 +94,19 @@ public class TarefaService {
 
     public List<Tarefa> getTarefasByTopico(Long topicoId) {
         return tarefaRepository.findByTopicoIdTopico(topicoId);
+    }
+
+    /*
+    public List<Tarefa> getTarefasOrdenadas(Long usuarioId) {
+
+    }*/
+
+    public Long geTarefasConcluidasByMaterias(Long materiaId, Boolean concluida) {
+        return tarefaRepository.countByMateriaIdMateriaAndConcluida(materiaId, concluida);
+    }
+
+    public Long getTarefasTotaisByMateria(Long materiaId) {
+        return tarefaRepository.countByMateriaIdMateria(materiaId);
     }
 
 
