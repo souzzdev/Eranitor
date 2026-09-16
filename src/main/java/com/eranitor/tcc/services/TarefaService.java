@@ -93,7 +93,7 @@ public class TarefaService {
     }
 
     public List<Tarefa> getTarefasByTopico(Long topicoId) {
-        return tarefaRepository.
+        return tarefaRepository.findByTopicoIdTopico(topicoId);
     }
 
 

@@ -43,4 +43,8 @@ public class Tarefa {
 
     @Column (name = "criadoem")
     private LocalDate criadoEm;
+
+    @ManyToOne
+    @JoinColumn(name = "topico_id")
+    private Topico topico;
 }
