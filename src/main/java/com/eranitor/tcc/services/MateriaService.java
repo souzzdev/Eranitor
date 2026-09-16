@@ -45,9 +45,8 @@ public class MateriaService {
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
 
-       if (dto.nome() != null && !dto.nome().isBlank()) {
-           materia.setNome(dto.nome());
-       }
+
+        materia.setNome(dto.nome());
 
        if (dto.ativa() != null) {
            materia.setAtiva(dto.ativa());

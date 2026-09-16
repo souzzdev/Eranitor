@@ -1,6 +1,8 @@
 package com.eranitor.tcc.services;
 
+import com.eranitor.tcc.dto.AlterarEmailDTO;
 import com.eranitor.tcc.dto.AlterarSenhaDTO;
+import com.eranitor.tcc.dto.AtualizarPerfilDTO;
 import com.eranitor.tcc.dto.ErrorResponseDTO;
 import com.eranitor.tcc.entity.Usuario;
 import com.eranitor.tcc.repository.UsuarioRepository;
@@ -22,7 +24,7 @@ public class UsuarioService {
 
 
     public ResponseEntity<?> findByLogin(String login) {
-        Optional<Usuario> usuario = repository.findByLogin(login);
+        Optional<Usuario> usuario = repository.findByEmail(login);
 
         if (usuario.isEmpty()) {
             return ResponseEntity
@@ -36,23 +38,39 @@ public class UsuarioService {
         return ResponseEntity.ok(usuario.get());
     }
 
-    public Usuario getPerfil (String login) {
-        return repository.findByLogin(login)
+    public Usuario getPerfil (String email) {
+        return repository.findByEmail(email)
                 .orElseThrow(() ->
                         new RuntimeException("Usuário não encontrado"));
     }
 
-    public Usuario updatePerfil (String login, Usuario novosDados) {
-        Usuario usuario = repository.findByLogin(login)
+    public Usuario updatePerfil (String email, AtualizarPerfilDTO dto) {
+        Usuario usuario = repository.findByEmail(email)
                 .orElseThrow(() ->
                         new RuntimeException("Usuário não encontrado"));
 
-        usuario.setLogin(novosDados.getLogin());
-        usuario.setNome(novosDados.getNome());
-        usuario.setInstituicao(novosDados.getInstituicao());
-        usuario.setSerie(novosDados.getSerie());
+
+        usuario.setNome(dto.nome());
+        usuario.setInstituicao(dto.instituicao());
+        usuario.setSerie(dto.serie());
 
         return repository.save(usuario);
+    }
+
+    public void alterarEmail(String emailAtual, AlterarEmailDTO dto) {
+        Usuario usuario = repository.findByEmail(emailAtual)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        if (!passwordEncoder.matches(dto.senhaAtual(), usuario.getPassword())) {
+            throw new IllegalArgumentException("Senha incorreta.");
+        }
+
+        if (repository.existsByEmail(dto.novoEmail())) {
+            throw new IllegalArgumentException("O novo e-mail informado já está em uso.");
+        }
+
+        usuario.setEmail(dto.novoEmail());
+        repository.save(usuario);
     }
 
     public void alterarSenha (Long id, AlterarSenhaDTO dto) {

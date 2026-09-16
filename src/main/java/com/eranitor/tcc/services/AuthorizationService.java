@@ -10,8 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -54,7 +52,7 @@ public class AuthorizationService {
 
         Usuario usuario = new Usuario();
 
-        usuario.setLogin(data.email());
+        usuario.setEmail(data.email());
         usuario.setPassword(
                 passwordEncoder.encode(
                         data.password()
@@ -109,7 +107,7 @@ public class AuthorizationService {
         }
 
         Usuario usuario =
-                repository.findByLogin(login)
+                repository.findByEmail(login)
                         .orElseThrow(() ->
                                 new RuntimeException(
                                         "Usuário não encontrado"
@@ -121,7 +119,7 @@ public class AuthorizationService {
 
 
     private void validateEmailUnique(String email) {
-        if (repository.existsByLogin(email)) {
+        if (repository.existsByEmail(email)) {
             throw new IllegalArgumentException("Email já cadastrado!");
         }
     }

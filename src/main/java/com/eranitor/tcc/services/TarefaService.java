@@ -4,6 +4,7 @@ import com.eranitor.tcc.dto.TarefaDTO;
 import com.eranitor.tcc.dto.TopicoDTO;
 import com.eranitor.tcc.entity.Materia;
 import com.eranitor.tcc.entity.Tarefa;
+import com.eranitor.tcc.entity.Topico;
 import com.eranitor.tcc.entity.Usuario;
 import com.eranitor.tcc.repository.MateriaRepository;
 import com.eranitor.tcc.repository.TarefaRepository;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 public class TarefaService {
@@ -54,6 +56,44 @@ public class TarefaService {
 
         tarefaRepository.save(tarefa);
 
+    }
+
+
+    public void updateTarefa(Long id, TarefaDTO dto) {
+        Tarefa tarefa = tarefaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Tarefa não  encontrada."));
+
+        tarefa.setTitulo(dto.titulo());
+        tarefa.setDescricao(dto.descricao());
+        tarefa.setDataVencimento(dto.dataVencimento());
+        tarefa.setCor(dto.cor());
+
+        tarefaRepository.save(tarefa);
+
+    }
+
+    public void completarTarefa(Long id, TarefaDTO dto) {
+        Tarefa tarefa = tarefaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Tarefa não encontrada."));
+
+        tarefa.setConcluida(true);
+
+        tarefaRepository.save(tarefa);
+    }
+
+    public void deleteTarefa(Long id) {
+        Tarefa tarefa = tarefaRepository.findById(id)
+                        .orElseThrow(() -> new IllegalArgumentException("Tarefa não encontrada"));
+
+        tarefaRepository.deleteById(id);
+    }
+
+    public List<Tarefa> getTarefasByMateria(Long materiaId) {
+        return tarefaRepository.findByMateriaIdMateria(materiaId);
+    }
+
+    public List<Tarefa> getTarefasByTopico(Long topicoId) {
+        return tarefaRepository.
     }
 
 

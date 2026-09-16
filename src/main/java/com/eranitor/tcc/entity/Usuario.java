@@ -31,8 +31,8 @@ public class Usuario implements UserDetails {
     @Column (name = "nome")
     private String nome;
 
-    @Column (name = "login")
-    private String login;
+    @Column(name = "login", nullable = false, unique = true)
+    private String email;
 
     @Column (name = "senhahash")
     private String password;
@@ -48,8 +48,8 @@ public class Usuario implements UserDetails {
 
     private UsuarioRole role;
 
-    public Usuario (String login, String password, UsuarioRole role) {
-        this.login = login;
+    public Usuario (String email, String password, UsuarioRole role) {
+        this.email = email;
         this.password = password;
         this.role = role;
 
@@ -77,7 +77,7 @@ public class Usuario implements UserDetails {
 
     @Override
     public String getUsername() {
-        return login;
+        return email;
     }
 
     @Override

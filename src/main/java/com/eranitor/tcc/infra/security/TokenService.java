@@ -24,7 +24,7 @@ public class TokenService {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             String token = JWT.create()
                     .withIssuer("Eranitor")
-                    .withSubject(usuario.getLogin())
+                    .withSubject(usuario.getEmail())
                     .withExpiresAt(genExpirationDate())
                     .sign(algorithm);
             return token;
