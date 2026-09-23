@@ -16,4 +16,15 @@ public interface MateriaRepository extends JpaRepository<Materia, Long> {
     List<Materia> findAllByUsuario_IdUsuario(Long usuarioId);
 
     List<Materia> findAllByUsuario_IdUsuarioAndAtivaTrue(Long usuarioId);
+
+    Optional<Materia> findByIdMateriaAndUsuario_IdUsuario(
+            Long idMateria,
+            Long usuarioId
+    );
+
+    boolean existsByNomeIgnoreCaseAndUsuario_IdUsuarioAndIdMateriaNot(
+            String nome,
+            Long usuarioId,
+            Long idMateria
+    );
 }

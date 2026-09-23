@@ -1,8 +1,10 @@
 package com.eranitor.tcc.services;
 
 import com.eranitor.tcc.dto.MateriaDTO;
+import com.eranitor.tcc.dto.MateriaResponseDTO;
 import com.eranitor.tcc.entity.Materia;
 import com.eranitor.tcc.entity.Usuario;
+import com.eranitor.tcc.mapper.MateriaMapper;
 import com.eranitor.tcc.repository.MateriaRepository;
 import com.eranitor.tcc.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,40 +21,45 @@ public class MateriaService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @Autowired
+    private MateriaMapper materiaMapper;
 
 
     public void cadastrarMateria(MateriaDTO dto, Long usuarioId) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
+
         if (materiaRepository.findByNomeIgnoreCaseAndUsuario_IdUsuario(dto.nome(), usuarioId).isPresent()) {
             throw new RuntimeException("Você já possui uma matéria com esse nome.");
         }
 
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
+        Materia materia = materiaMapper.toEntity(dto);
 
-        Materia materia = new Materia();
-
-        materia.setNome(dto.nome());
         materia.setUsuario(usuario);
         materia.setAtiva(Boolean.TRUE);
 
         materiaRepository.save(materia);
     }
 
-    public void updateMateria(MateriaDTO dto, Long usuarioId, Long id) {
-        Materia materia = materiaRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Matéria não encontrada!"));
+    public MateriaResponseDTO updateMateria(MateriaDTO dto, Long usuarioId, Long id) {
+        Materia materia = materiaRepository.findByIdMateriaAndUsuario_IdUsuario(id, usuarioId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Matéria não encontrada ou não pertence ao usuário!"
+                ));
 
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
+        if (materiaRepository.existsByNomeIgnoreCaseAndUsuario_IdUsuarioAndIdMateriaNot(
+                dto.nome(),
+                usuarioId,
+                id
+        )) {
+            throw new IllegalArgumentException("Você já possui uma matéria com esse nome.");
+        }
 
+        materiaMapper.updateEntity(dto, materia);
 
-        materia.setNome(dto.nome());
+        Materia materiaAtualizada = materiaRepository.save(materia);
 
-       if (dto.ativa() != null) {
-           materia.setAtiva(dto.ativa());
-       }
-
-       materiaRepository.save(materia);
+        return materiaMapper.toResponseDTO(materiaAtualizada);
     }
 
 
