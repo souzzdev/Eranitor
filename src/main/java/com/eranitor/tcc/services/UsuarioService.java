@@ -1,10 +1,8 @@
 package com.eranitor.tcc.services;
 
-import com.eranitor.tcc.dto.AlterarEmailDTO;
-import com.eranitor.tcc.dto.AlterarSenhaDTO;
-import com.eranitor.tcc.dto.AtualizarPerfilDTO;
-import com.eranitor.tcc.dto.ErrorResponseDTO;
+import com.eranitor.tcc.dto.*;
 import com.eranitor.tcc.entity.Usuario;
+import com.eranitor.tcc.mapper.UsuarioMapper;
 import com.eranitor.tcc.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,6 +20,9 @@ public class UsuarioService {
     @Autowired
     private PasswordEncoder  passwordEncoder;
 
+    @Autowired
+    private UsuarioMapper usuarioMapper;
+
 
     public ResponseEntity<?> findByLogin(String login) {
         Optional<Usuario> usuario = repository.findByEmail(login);
@@ -35,26 +36,25 @@ public class UsuarioService {
                     ));
         }
 
-        return ResponseEntity.ok(usuario.get());
+        return ResponseEntity.ok(usuarioMapper.toResponseDTO(usuario.get()));
     }
 
-    public Usuario getPerfil (String email) {
-        return repository.findByEmail(email)
-                .orElseThrow(() ->
-                        new RuntimeException("Usuário não encontrado"));
+    public UsuarioResponseDTO getPerfil (String email) {
+        Usuario usuario = repository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        return usuarioMapper.toResponseDTO(usuario);
     }
 
-    public Usuario updatePerfil (String email, AtualizarPerfilDTO dto) {
+    public UsuarioResponseDTO updatePerfil (String email, AtualizarPerfilDTO dto) {
         Usuario usuario = repository.findByEmail(email)
                 .orElseThrow(() ->
                         new RuntimeException("Usuário não encontrado"));
 
+        usuarioMapper.updateEntity(dto, usuario);
+        Usuario usuarioAtualizado = repository.save(usuario);
 
-        usuario.setNome(dto.nome());
-        usuario.setInstituicao(dto.instituicao());
-        usuario.setSerie(dto.serie());
-
-        return repository.save(usuario);
+        return usuarioMapper.toResponseDTO(usuarioAtualizado);
     }
 
     public void alterarEmail(String emailAtual, AlterarEmailDTO dto) {

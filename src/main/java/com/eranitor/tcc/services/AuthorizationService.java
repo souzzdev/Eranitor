@@ -5,6 +5,7 @@ import com.eranitor.tcc.dto.RegisterDTO;
 import com.eranitor.tcc.entity.Usuario;
 import com.eranitor.tcc.enums.UsuarioRole;
 import com.eranitor.tcc.infra.security.TokenService;
+import com.eranitor.tcc.mapper.UsuarioMapper;
 import com.eranitor.tcc.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,6 +31,9 @@ public class AuthorizationService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private UsuarioMapper usuarioMapper;
+
     public String login(AuthenticationDTO data) {
 
         Authentication authentication =
@@ -50,19 +54,16 @@ public class AuthorizationService {
 
         validateEmailUnique(data.email());
 
-        Usuario usuario = new Usuario();
+        if(!data.password().equals(data.confirmPassword())) {
+            throw new IllegalArgumentException("As senhas não coincidem!");
+        }
 
-        usuario.setEmail(data.email());
+        Usuario usuario = usuarioMapper.toEntity(data);
+
         usuario.setPassword(
-                passwordEncoder.encode(
-                        data.password()
-                )
+                passwordEncoder.encode(data.password())
         );
-        usuario.setNome(data.nome());
-        usuario.setInstituicao(
-                data.instituicao()
-        );
-        usuario.setSerie(data.serie());
+
         usuario.setRole(UsuarioRole.USER);
         usuario.setCriadoEm(LocalDateTime.now());
 
