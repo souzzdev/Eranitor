@@ -33,4 +33,7 @@ public class Materia {
 
     @OneToMany (mappedBy = "materia", fetch = FetchType.LAZY)
     private List<Topico> topicos;
+
+    @Column(name = "dificuldade", nullable = false)
+    private Integer dificuldade;
 }

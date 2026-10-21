@@ -44,7 +44,8 @@ public class MapperConfig {
                     return new MateriaResponseDTO(
                             materia.getIdMateria(),
                             materia.getNome(),
-                            materia.getAtiva()
+                            materia.getAtiva(),
+                            materia.getDificuldade()
                     );
                 });
 

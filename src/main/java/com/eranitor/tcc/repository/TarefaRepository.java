@@ -19,6 +19,12 @@ public interface TarefaRepository extends JpaRepository<Tarefa, Long> {
     // RN004 - Contar todas as tarefas de uma matéria
     Long countByMateriaIdMateria(Long materiaId);
 
+    // Contar todas as tarefas de um usuário
+    Long countByUsuarioIdUsuario(Long usuarioId);
+
+    // Contar tarefas concluídas de um usuário
+    Long countByUsuarioIdUsuarioAndConcluida(Long usuarioId, Boolean concluida);
+
     // RN008 - Listar tarefas de uma matéria
     List<Tarefa> findByMateriaIdMateria(Long materiaId);
 

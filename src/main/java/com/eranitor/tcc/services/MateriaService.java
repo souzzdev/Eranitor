@@ -38,6 +38,7 @@ public class MateriaService {
         materia.setUsuario(usuario);
         materia.setAtiva(Boolean.TRUE);
 
+
         materiaRepository.save(materia);
     }
 
