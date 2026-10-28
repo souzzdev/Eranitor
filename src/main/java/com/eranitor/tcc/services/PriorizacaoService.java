@@ -7,17 +7,17 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 public class PriorizacaoService {
 
     private final TarefaRepository tarefaRepository;
+    private final ProgressoService progressoService;
 
-    public PriorizacaoService(TarefaRepository tarefaRepository) {
+    public PriorizacaoService(TarefaRepository tarefaRepository, ProgressoService progressoService) {
         this.tarefaRepository = tarefaRepository;
+        this.progressoService = progressoService;
     }
 
     public double calcularAtraso(LocalDate dataVencimento, boolean concluida) {
@@ -75,5 +75,53 @@ public class PriorizacaoService {
         return tarefaRepository.findByUsuarioIdUsuario(usuarioId);
     }
 
+    public List<Tarefa> getTarefasOrdenadas(Long usuarioId) {
+        List<Tarefa> tarefas = buscarTarefasDoUsuario(usuarioId);
 
+        Map<Long, Double> progressoPorMateria = progressoService.getProgressoPorMateria(usuarioId);
+
+        return tarefas.stream()
+                .filter(tarefa -> !Boolean.TRUE.equals(tarefa.getConcluida()))
+                .filter(tarefa -> tarefa.getMateria() != null)
+                .filter(tarefa -> tarefa.getMateria().getIdMateria() != null)
+                .sorted(Comparator.comparingDouble((Tarefa tarefa) -> {
+                    Long materiaId = tarefa.getMateria().getIdMateria();
+
+                    double progressoPercentual = progressoPorMateria
+                            .getOrDefault(materiaId, 0.0);
+
+                    double progresso = progressoPercentual / 100.0;
+
+                    return calcularPrioridade(tarefa, progresso);
+                }).reversed())
+                .toList();
+    }
+
+    public List<Tarefa> getTarefasProximas(Long usuarioId, int dias) {
+        Objects.requireNonNull(
+                usuarioId,
+                "O ID do usuário não pode ser nulo."
+        );
+
+        if (dias < 0) {
+            throw new IllegalArgumentException(
+                    "O número de dias não pode ser negativo."
+            );
+        }
+
+        LocalDate hoje = LocalDate.now();
+        LocalDate limite = hoje.plusDays(dias);
+
+        return buscarTarefasDoUsuario(usuarioId).stream()
+                .filter(tarefa -> !Boolean.TRUE.equals(tarefa.getConcluida()))
+                .filter(tarefa -> tarefa.getDataVencimento() != null)
+                .filter(tarefa -> {
+                    LocalDate vencimento = tarefa.getDataVencimento();
+
+                    return !vencimento.isBefore(hoje)
+                            && !vencimento.isAfter(limite);
+                })
+                .sorted(Comparator.comparing(Tarefa::getDataVencimento))
+                .toList();
+    }
 }

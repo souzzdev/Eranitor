@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface TempoEstudoRepository extends JpaRepository<TempoEstudo, Integer> {
-    List<TempoEstudo> findByUsuarioId(Long usuarioId);
+    List<TempoEstudo> findByUsuario_IdUsuario(Long usuarioId);
 }
