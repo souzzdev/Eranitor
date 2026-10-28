@@ -64,6 +64,9 @@ public class Usuario implements UserDetails {
     @OneToMany (mappedBy = "usuario", fetch = FetchType.LAZY)
     private List<Agenda> agenda;
 
+    @Column(name = "meta_semanal_horas")
+    private Integer metaSemanalHoras;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if(this.role == UsuarioRole.ADMIN) return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_USER"));
