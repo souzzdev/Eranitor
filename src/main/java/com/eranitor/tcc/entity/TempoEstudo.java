@@ -33,7 +33,7 @@ public class TempoEstudo {
     private Integer minutosAtividade;
 
     @Column (name = "minutosvideo")
-    private Integer mintutosVideo;
+    private Integer minutosVideo;
 
     @Column (name = "minutosapostila")
     private Integer minutosApostila;

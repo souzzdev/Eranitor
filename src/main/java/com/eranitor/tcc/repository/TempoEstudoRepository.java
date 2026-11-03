@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface TempoEstudoRepository extends JpaRepository<TempoEstudo, Integer> {
     List<TempoEstudo> findByUsuario_IdUsuario(Long usuarioId);
+    List<TempoEstudo> findByMateria_IdMateria(Long materiaId);
 }
