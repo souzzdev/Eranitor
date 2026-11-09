@@ -112,7 +112,7 @@ public class ProgressoService {
             throw new IllegalArgumentException("O ano deve ser válido.");
         }
 
-        var registros = desempenhoRepository.findByMateriaIdMateriaAndMesAndAno(materiaId, mes, ano);
+        var registros = desempenhoRepository.findByMateria_IdMateriaAndMesAndAno(materiaId, mes, ano);
 
         long horasConcluidas = registros.stream()
                 .mapToLong(registro -> registro.getHorasConcluidas() == null

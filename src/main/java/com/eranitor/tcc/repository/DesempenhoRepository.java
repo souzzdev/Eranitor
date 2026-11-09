@@ -8,7 +8,7 @@ import java.util.List;
 public interface DesempenhoRepository
         extends JpaRepository<Desempenho, Long> {
 
-    List<Desempenho> findByMateriaIdMateriaAndMesAndAno(
+    List<Desempenho> findByMateria_IdMateriaAndMesAndAno(
             Long materiaId,
             Integer mes,
             Integer ano
