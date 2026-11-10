@@ -22,7 +22,7 @@ public class Agenda {
     private Usuario usuario;
 
     @Column (name = "data_2")
-    private LocalDate data_2;
+    private LocalDate data;
 
     @Column (name = "titulo")
     private String titulo;
