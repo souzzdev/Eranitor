@@ -1,6 +1,7 @@
 package com.eranitor.tcc.services;
 
 import com.eranitor.tcc.dto.TarefaDTO;
+import com.eranitor.tcc.dto.TarefaPriorizadaDTO;
 import com.eranitor.tcc.dto.TopicoDTO;
 import com.eranitor.tcc.entity.Materia;
 import com.eranitor.tcc.entity.Tarefa;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TarefaService {
@@ -25,6 +27,36 @@ public class TarefaService {
 
     @Autowired
     private MateriaRepository materiaRepository;
+
+    @Autowired
+    private PriorizacaoService priorizacaoService;
+
+    public List<TarefaPriorizadaDTO> getTarefasOrdenadas(Long usuarioId) {
+        List<Tarefa> tarefas = priorizacaoService.getTarefasOrdenadas(usuarioId);
+
+        return tarefas.stream()
+                .map(tarefa -> {
+                    Materia materia = tarefa.getMateria();
+                    Double prioridade = priorizacaoService.calcularPrioridade(
+                            tarefa,
+                            tarefa.getConcluida() != null && tarefa.getConcluida() ? 1.0 : 0.0
+                    );
+
+                    return new TarefaPriorizadaDTO(
+                            tarefa.getIdTarefa(),
+                            tarefa.getTitulo(),
+                            tarefa.getDescricao(),
+                            tarefa.getDataVencimento(),
+                            tarefa.getCor(),
+                            tarefa.getConcluida(),
+                            prioridade,
+                            materia != null ? materia.getIdMateria() : null,
+                            materia != null ? materia.getNome() : null,
+                            usuarioId
+                    );
+                })
+                .collect(Collectors.toList());
+    }
 
     public void createTarefa(Long usuarioId, Long materiaId, TarefaDTO dto) {
         if(tarefaRepository.existsByTituloIgnoreCaseAndMateria_IdMateriaAndUsuario_IdUsuario(

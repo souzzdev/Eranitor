@@ -10,13 +10,13 @@ public interface AgendaRepository extends JpaRepository<Agenda, Integer>
 {
     List<Agenda> findByUsuario_IdUsuario(Long usuarioId);
 
-    List<Agenda> findByUsuario_IdUsuarioAndData_2Between(
+    List<Agenda> findByUsuario_IdUsuarioAndDataBetween(
             Long usuarioId,
             LocalDate inicio,
             LocalDate fim
     );
 
-    List<Agenda> findByUsuario_IdUsuarioAndData_2(
+    List<Agenda> findByUsuario_IdUsuarioAndData(
             Long usuarioId,
             LocalDate data
     );

@@ -1,10 +1,13 @@
 package com.eranitor.tcc.services;
 
 import com.eranitor.tcc.dto.DistribuicaoMateriaDTO;
+import com.eranitor.tcc.entity.Desempenho;
 import com.eranitor.tcc.entity.Materia;
 import com.eranitor.tcc.entity.Usuario;
+import com.eranitor.tcc.repository.DesempenhoRepository;
 import com.eranitor.tcc.repository.MateriaRepository;
 import com.eranitor.tcc.repository.UsuarioRepository;
+import com.eranitor.tcc.services.ProgressoService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -27,6 +31,12 @@ public class MetaService {
 
     @Autowired
     private MateriaRepository materiaRepository;
+
+    @Autowired
+    private DesempenhoRepository desempenhoRepository;
+
+    @Autowired
+    private ProgressoService progressoService;
 
     @Transactional
     public void setMetaSemanal(Long usuarioId, Integer horasTotal) {
@@ -117,6 +127,80 @@ public class MetaService {
                 )
                 .toList();
     }
+    @Transactional
+    public void setMetaMateria(Long usuarioId, Long materiaId, Integer mes, Integer ano, Integer horasMeta) {
+        validarUsuarioId(usuarioId);
+
+        if (!materiaRepository.existsById(materiaId)) {
+            throw new EntityNotFoundException("Matéria não encontrada");
+        }
+
+        if (horasMeta == null || horasMeta <= 0) {
+            throw new IllegalArgumentException("As horas de meta devem ser maiores que zero");
+        }
+
+        List<Desempenho> existentes = desempenhoRepository.findByMateria_IdMateriaAndMesAndAno(
+                materiaId, mes, ano
+        );
+
+        if (!existentes.isEmpty()) {
+            Desempenho desempenho = existentes.get(0);
+            desempenho.setHorasMeta(horasMeta);
+            desempenhoRepository.save(desempenho);
+        } else {
+            Desempenho novo = new Desempenho();
+            novo.setUsuario(usuarioRepository.findById(usuarioId)
+                    .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado")));
+            novo.setMateria(materiaRepository.findById(materiaId)
+                    .orElseThrow(() -> new EntityNotFoundException("Matéria não encontrada")));
+            novo.setMes(mes);
+            novo.setAno(ano);
+            novo.setHorasConcluidas(0);
+            novo.setHorasMeta(horasMeta);
+            desempenhoRepository.save(novo);
+        }
+    }
+
+    public Integer getMetaSemanal(Long usuarioId) {
+        validarUsuarioId(usuarioId);
+
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
+
+        return usuario.getMetaSemanalHoras();
+    }
+
+    public List<DistribuicaoMateriaDTO> getDistribuicaoPorMateria(Long usuarioId, Integer mes, Integer ano) {
+        validarUsuarioId(usuarioId);
+
+        List<Materia> materias = materiaRepository.findAllByUsuario_IdUsuarioAndAtivaTrue(usuarioId);
+
+        return materias.stream()
+                .map(materia -> {
+                    List<Desempenho> registros = desempenhoRepository.findByMateria_IdMateriaAndMesAndAno(
+                            materia.getIdMateria(), mes, ano
+                    );
+
+                    Integer horasMeta = registros.stream()
+                            .mapToInt(Desempenho::getHorasMeta)
+                            .sum();
+
+                    return new DistribuicaoMateriaDTO(
+                            materia.getIdMateria(),
+                            materia.getNome(),
+                            materia.getDificuldade(),
+                            horasMeta
+                    );
+                })
+                .collect(Collectors.toList());
+    }
+
+    public Double calcularDesempenhoPercentual(Long usuarioId) {
+        validarUsuarioId(usuarioId);
+
+        return progressoService.calcularProgressoGeral(usuarioId);
+    }
+
     private void validarUsuarioId(Long usuarioId) {
         Objects.requireNonNull(
                 usuarioId,
