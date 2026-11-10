@@ -13,4 +13,10 @@ public interface DesempenhoRepository
             Integer mes,
             Integer ano
     );
+
+    List<Desempenho> findByUsuario_IdUsuarioAndMesAndAno(
+            Long usuarioId,
+            Integer mes,
+            Integer ano
+    );
 }
