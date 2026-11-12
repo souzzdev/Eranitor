@@ -4,6 +4,7 @@ import com.eranitor.tcc.dto.AgendaCreateDTO;
 import com.eranitor.tcc.dto.AgendaDTO;
 import com.eranitor.tcc.entity.Agenda;
 import com.eranitor.tcc.entity.Usuario;
+import com.eranitor.tcc.infra.security.OwnershipService;
 import com.eranitor.tcc.repository.AgendaRepository;
 import com.eranitor.tcc.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +21,15 @@ public class AgendaService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @Autowired
+    private OwnershipService ownership;
+
     public AgendaDTO criarAgenda(AgendaCreateDTO dto, Long usuarioId) {
         if (usuarioId == null || usuarioId <= 0) {
             throw new IllegalArgumentException("O ID do usuário deve ser positivo");
         }
+
+        ownership.exigirUsuario(usuarioId);
 
         if (dto == null || dto.titulo() == null || dto.titulo().isBlank()) {
             throw new IllegalArgumentException("O título é obrigatório");
@@ -54,6 +60,8 @@ public class AgendaService {
             throw new IllegalArgumentException("O ID do usuário deve ser positivo");
         }
 
+        ownership.exigirUsuario(usuarioId);
+
         List<Agenda> agendas = agendaRepository.findByUsuario_IdUsuario(usuarioId);
 
         return agendas.stream()
@@ -74,6 +82,8 @@ public class AgendaService {
 
         Agenda agenda = agendaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Agenda não encontrada"));
+
+        ownership.exigirDono(agenda.getUsuario());
 
         agenda.setData(dto.data());
         agenda.setTitulo(dto.titulo());
@@ -97,6 +107,8 @@ public class AgendaService {
 
         Agenda agenda = agendaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Agenda não encontrada"));
+
+        ownership.exigirDono(agenda.getUsuario());
 
         agendaRepository.delete(agenda);
     }

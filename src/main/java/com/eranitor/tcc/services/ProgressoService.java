@@ -2,6 +2,7 @@ package com.eranitor.tcc.services;
 
 import com.eranitor.tcc.entity.Materia;
 import com.eranitor.tcc.entity.Tarefa;
+import com.eranitor.tcc.infra.security.OwnershipService;
 import com.eranitor.tcc.repository.DesempenhoRepository;
 import com.eranitor.tcc.repository.MateriaRepository;
 import com.eranitor.tcc.repository.TarefaRepository;
@@ -18,11 +19,13 @@ public class ProgressoService {
     private final TarefaRepository tarefaRepository;
     private final MateriaRepository materiaRepository;
     private final DesempenhoRepository desempenhoRepository;
+    private final OwnershipService ownership;
 
-    public ProgressoService (TarefaRepository tarefaRepository, MateriaRepository materiaRepository, DesempenhoRepository desempenhoRepository) {
+    public ProgressoService (TarefaRepository tarefaRepository, MateriaRepository materiaRepository, DesempenhoRepository desempenhoRepository, OwnershipService ownership) {
         this.tarefaRepository = tarefaRepository;
         this.materiaRepository = materiaRepository;
         this.desempenhoRepository = desempenhoRepository;
+        this.ownership = ownership;
     }
 
     private double percentual(long valor, long total) {
@@ -36,6 +39,8 @@ public class ProgressoService {
 
     public double calcularProgressoGeral(Long usuarioId) {
         Objects.requireNonNull(usuarioId, "O ID do usuário não pode ser nulo.");
+
+        ownership.exigirUsuario(usuarioId);
 
         long total = tarefaRepository.countByUsuarioIdUsuario(usuarioId);
 
@@ -51,6 +56,9 @@ public class ProgressoService {
     public double calcularProgressoMateria(Long materiaId) {
         Objects.requireNonNull(materiaId, "O ID da matéria não pode ser nulo.");
 
+        materiaRepository.findById(materiaId)
+                .ifPresent(materia -> ownership.exigirDono(materia.getUsuario()));
+
         long total = tarefaRepository.countByMateriaIdMateria(materiaId);
 
         if (total == 0) {
@@ -64,6 +72,8 @@ public class ProgressoService {
 
     public Map<Long, Double> getProgressoPorMateria(Long usuarioId) {
         Objects.requireNonNull(usuarioId, "O ID do usuário não pode ser nulo.");
+
+        ownership.exigirUsuario(usuarioId);
 
         List<Materia> materias = materiaRepository.findAllByUsuario_IdUsuario(usuarioId);
 
@@ -103,6 +113,9 @@ public class ProgressoService {
 
     public double getProgressoTempoMateria(Long materiaId, int mes, int ano) {
         Objects.requireNonNull(materiaId, "O ID da matéria não pode ser nulo");
+
+        materiaRepository.findById(materiaId)
+                .ifPresent(materia -> ownership.exigirDono(materia.getUsuario()));
 
         if (mes < 1 || mes > 12) {
             throw new IllegalArgumentException("O mês deve ter entre 1 e 12.");

@@ -51,6 +51,20 @@ public class GlobalExceptionHandler {
                 .body(error);
     }
 
+    @ExceptionHandler(AcessoNegadoException.class)
+    public ResponseEntity<ErrorResponseDTO> handleAcessoNegado(AcessoNegadoException ex) {
+        log.warn("Acesso negado: {}", ex.getMessage());
+
+        ErrorResponseDTO error = new ErrorResponseDTO(
+                HttpStatus.FORBIDDEN.value(),
+                ex.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(error);
+    }
+
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponseDTO> handleRunTimeException(RuntimeException ex) {
         log.error("Erro interno não tratado (RuntimeException): {}", ex.getMessage(), ex);

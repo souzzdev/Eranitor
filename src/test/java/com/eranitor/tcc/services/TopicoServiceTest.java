@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import com.eranitor.tcc.infra.security.OwnershipService;
 
 @ExtendWith(MockitoExtension.class)
 class TopicoServiceTest {
@@ -30,6 +31,9 @@ class TopicoServiceTest {
 
     @Mock
     private MateriaRepository materiaRepository;
+
+    @Mock
+    private OwnershipService ownershipService;
 
     @InjectMocks
     private TopicoService service;

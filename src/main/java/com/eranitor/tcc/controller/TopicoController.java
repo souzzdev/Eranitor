@@ -4,6 +4,7 @@ import com.eranitor.tcc.dto.CreateTopicoDTO;
 import com.eranitor.tcc.dto.ErrorResponseDTO;
 import com.eranitor.tcc.dto.TopicoDTO;
 import com.eranitor.tcc.dto.TopicoResponseDTO;
+import com.eranitor.tcc.infra.exception.AcessoNegadoException;
 import com.eranitor.tcc.services.TopicoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +55,8 @@ public class TopicoController {
         try {
             topicoService.updateTopico(id, dto, materiaId);
             return ResponseEntity.ok().build();
+        } catch (AcessoNegadoException e) {
+            throw e;
         } catch (RuntimeException e) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
@@ -71,6 +74,8 @@ public class TopicoController {
         try {
             topicoService.deleteTopico(id);
             return ResponseEntity.noContent().build();
+        } catch (AcessoNegadoException e) {
+            throw e;
         } catch (RuntimeException e) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
@@ -97,6 +102,8 @@ public class TopicoController {
         try {
             topicoService.marcarConcluido(id);
             return ResponseEntity.ok().build();
+        } catch (AcessoNegadoException e) {
+            throw e;
         } catch (RuntimeException e) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)

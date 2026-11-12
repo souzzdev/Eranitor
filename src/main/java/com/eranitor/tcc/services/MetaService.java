@@ -4,6 +4,7 @@ import com.eranitor.tcc.dto.DistribuicaoMateriaDTO;
 import com.eranitor.tcc.entity.Desempenho;
 import com.eranitor.tcc.entity.Materia;
 import com.eranitor.tcc.entity.Usuario;
+import com.eranitor.tcc.infra.security.OwnershipService;
 import com.eranitor.tcc.repository.DesempenhoRepository;
 import com.eranitor.tcc.repository.MateriaRepository;
 import com.eranitor.tcc.repository.UsuarioRepository;
@@ -37,6 +38,9 @@ public class MetaService {
 
     @Autowired
     private ProgressoService progressoService;
+
+    @Autowired
+    private OwnershipService ownership;
 
     @Transactional
     public void setMetaSemanal(Long usuarioId, Integer horasTotal) {
@@ -135,6 +139,9 @@ public class MetaService {
             throw new EntityNotFoundException("Matéria não encontrada");
         }
 
+        materiaRepository.findById(materiaId)
+                .ifPresent(materia -> ownership.exigirDono(materia.getUsuario()));
+
         if (horasMeta == null || horasMeta <= 0) {
             throw new IllegalArgumentException("As horas de meta devem ser maiores que zero");
         }
@@ -212,6 +219,8 @@ public class MetaService {
                     "O ID do usuário deve ser positivo."
             );
         }
+
+        ownership.exigirUsuario(usuarioId);
     }
 
     private void validarMeta(Integer horasTotal) {

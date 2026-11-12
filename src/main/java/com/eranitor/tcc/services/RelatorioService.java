@@ -8,8 +8,10 @@ import com.eranitor.tcc.entity.Agenda;
 import com.eranitor.tcc.entity.Desempenho;
 import com.eranitor.tcc.entity.TempoEstudo;
 import com.eranitor.tcc.entity.Usuario;
+import com.eranitor.tcc.infra.security.OwnershipService;
 import com.eranitor.tcc.repository.AgendaRepository;
 import com.eranitor.tcc.repository.DesempenhoRepository;
+import com.eranitor.tcc.repository.MateriaRepository;
 import com.eranitor.tcc.repository.TempoEstudoRepository;
 import com.eranitor.tcc.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,12 @@ public class RelatorioService {
 
     @Autowired
     private AgendaRepository agendaRepository;
+
+    @Autowired
+    private MateriaRepository materiaRepository;
+
+    @Autowired
+    private OwnershipService ownership;
 
     public RelatorioDTO gerarRelatorioPeriodo(Long usuarioId, LocalDate dataInicio, LocalDate dataFim) {
         validarUsuario(usuarioId);
@@ -61,6 +69,9 @@ public class RelatorioService {
     }
 
     public RelatorioDTO gerarRelatorioMateria(Long materiaId, LocalDate mesInicio, LocalDate mesFim) {
+        materiaRepository.findById(materiaId)
+                .ifPresent(materia -> ownership.exigirDono(materia.getUsuario()));
+
         List<DesempenhoDTO> desempenho = desempenhoRepository.findByMateria_IdMateriaAndMesAndAno(
                 materiaId, mesInicio.getMonthValue(), mesInicio.getYear()
         ).stream()
@@ -134,6 +145,8 @@ public class RelatorioService {
     }
 
     private void validarUsuario(Long usuarioId) {
+        ownership.exigirUsuario(usuarioId);
+
         if (!usuarioRepository.existsById(usuarioId)) {
             throw new RuntimeException("Usuário não encontrado");
         }

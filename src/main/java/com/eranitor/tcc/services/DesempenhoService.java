@@ -4,6 +4,7 @@ import com.eranitor.tcc.dto.DesempenhoDTO;
 import com.eranitor.tcc.entity.Desempenho;
 import com.eranitor.tcc.entity.Materia;
 import com.eranitor.tcc.entity.Usuario;
+import com.eranitor.tcc.infra.security.OwnershipService;
 import com.eranitor.tcc.repository.DesempenhoRepository;
 import com.eranitor.tcc.repository.MateriaRepository;
 import com.eranitor.tcc.repository.UsuarioRepository;
@@ -19,12 +20,14 @@ public class DesempenhoService {
     private final MateriaRepository materiaRepository;
     private final TempoEstudoService tempoEstudoService;
     private final UsuarioRepository usuarioRepository;
+    private final OwnershipService ownership;
 
-    public DesempenhoService(DesempenhoRepository desempenhoRepository, MateriaRepository materiaRepository, TempoEstudoService tempoEstudoService, UsuarioRepository usuarioRepository) {
+    public DesempenhoService(DesempenhoRepository desempenhoRepository, MateriaRepository materiaRepository, TempoEstudoService tempoEstudoService, UsuarioRepository usuarioRepository, OwnershipService ownership) {
         this.desempenhoRepository = desempenhoRepository;
         this.materiaRepository = materiaRepository;
         this.tempoEstudoService = tempoEstudoService;
         this.usuarioRepository = usuarioRepository;
+        this.ownership = ownership;
     }
 
     public DesempenhoDTO calcularDesempenho(Long usuarioId, Long materiaId, Integer mes, Integer ano) {
@@ -32,9 +35,14 @@ public class DesempenhoService {
             throw new IllegalArgumentException("O ID do usuário deve ser positivo");
         }
 
+        ownership.exigirUsuario(usuarioId);
+
         if (materiaId == null) {
             throw new IllegalArgumentException("A matéria é obrigatória");
         }
+
+        materiaRepository.findById(materiaId)
+                .ifPresent(materia -> ownership.exigirDono(materia.getUsuario()));
 
         if (mes == null || mes < 1 || mes > 12) {
             throw new IllegalArgumentException("O mês deve estar entre 1 e 12");
@@ -78,6 +86,8 @@ public class DesempenhoService {
             throw new IllegalArgumentException("O ID do usuário deve ser positivo");
         }
 
+        ownership.exigirUsuario(usuarioId);
+
         if (materiaId == null) {
             throw new IllegalArgumentException("A matéria é obrigatória");
         }
@@ -95,6 +105,8 @@ public class DesempenhoService {
 
         Materia materia = materiaRepository.findById(materiaId)
                 .orElseThrow(() -> new RuntimeException("Matéria não encontrada"));
+
+        ownership.exigirDono(materia.getUsuario());
 
         List<Desempenho> existentes = desempenhoRepository.findByMateria_IdMateriaAndMesAndAno(
                 materiaId, mes, ano
@@ -134,6 +146,8 @@ public class DesempenhoService {
             throw new IllegalArgumentException("O ID do usuário deve ser positivo");
         }
 
+        ownership.exigirUsuario(usuarioId);
+
         List<Desempenho> registros = desempenhoRepository.findByUsuario_IdUsuarioAndMesAndAno(
                 usuarioId, mes, ano
         );
@@ -157,6 +171,8 @@ public class DesempenhoService {
             throw new IllegalArgumentException("O ID do usuário deve ser positivo");
         }
 
+        ownership.exigirUsuario(usuarioId);
+
         if (materiaId == null) {
             throw new IllegalArgumentException("A matéria é obrigatória");
         }
@@ -170,6 +186,8 @@ public class DesempenhoService {
 
         Materia materia = materiaRepository.findById(materiaId)
                 .orElseThrow(() -> new RuntimeException("Matéria não encontrada"));
+
+        ownership.exigirDono(materia.getUsuario());
 
         List<Desempenho> existentes = desempenhoRepository.findByMateria_IdMateriaAndMesAndAno(
                 materiaId, mes, ano

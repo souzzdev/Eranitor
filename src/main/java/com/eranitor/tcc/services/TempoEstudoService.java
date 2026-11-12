@@ -5,6 +5,7 @@ import com.eranitor.tcc.dto.TempoEstudoRegistroDTO;
 import com.eranitor.tcc.entity.Materia;
 import com.eranitor.tcc.entity.TempoEstudo;
 import com.eranitor.tcc.entity.Usuario;
+import com.eranitor.tcc.infra.security.OwnershipService;
 import com.eranitor.tcc.repository.MateriaRepository;
 import com.eranitor.tcc.repository.TempoEstudoRepository;
 import com.eranitor.tcc.repository.UsuarioRepository;
@@ -25,10 +26,15 @@ public class TempoEstudoService {
     @Autowired
     UsuarioRepository usuarioRepository;
 
+    @Autowired
+    OwnershipService ownership;
+
     public TempoEstudoDTO registrarTempo(TempoEstudoRegistroDTO dto, Long usuarioId) {
         if (usuarioId == null || usuarioId <= 0) {
             throw new IllegalArgumentException("O ID do usuário deve ser positivo");
         }
+
+        ownership.exigirUsuario(usuarioId);
 
         if (dto == null || dto.minutos() == null || dto.minutos() <= 0) {
             throw new IllegalArgumentException("Os minutos de estudo devem ser maiores que zero.");
@@ -43,6 +49,8 @@ public class TempoEstudoService {
 
         Materia materia = materiaRepository.findById(dto.materiaId())
                 .orElseThrow(() -> new RuntimeException("Matéria não encontrada"));
+
+        ownership.exigirDono(materia.getUsuario());
 
         TempoEstudo tempoEstudo = new TempoEstudo();
         tempoEstudo.setUsuario(usuario);
@@ -81,6 +89,8 @@ public class TempoEstudoService {
             throw new IllegalArgumentException("O ID do usuário deve ser positivo");
         }
 
+        ownership.exigirUsuario(usuarioId);
+
         List<TempoEstudo> registros = tempoEstudoRepository.findByUsuario_IdUsuario(usuarioId);
 
         return registros.stream()
@@ -101,6 +111,9 @@ public class TempoEstudoService {
         if (materiaId == null) {
             throw new IllegalArgumentException("A matéria não pode ser nula.");
         }
+
+        materiaRepository.findById(materiaId)
+                .ifPresent(materia -> ownership.exigirDono(materia.getUsuario()));
 
         List<TempoEstudo> registros = tempoEstudoRepository.findByMateria_IdMateria(materiaId);
 

@@ -2,6 +2,7 @@ package com.eranitor.tcc.controller;
 
 import com.eranitor.tcc.dto.DesempenhoDTO;
 import com.eranitor.tcc.dto.ErrorResponseDTO;
+import com.eranitor.tcc.infra.exception.AcessoNegadoException;
 import com.eranitor.tcc.services.DesempenhoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,6 +37,8 @@ public class DesempenhoController {
                             dto.ano(),
                             dto.horasConcluidas()
                     ));
+        } catch (AcessoNegadoException e) {
+            throw e;
         } catch (RuntimeException e) {
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)

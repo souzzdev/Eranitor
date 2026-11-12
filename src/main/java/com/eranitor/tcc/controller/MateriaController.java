@@ -3,6 +3,7 @@ package com.eranitor.tcc.controller;
 import com.eranitor.tcc.dto.ErrorResponseDTO;
 import com.eranitor.tcc.dto.MateriaDTO;
 import com.eranitor.tcc.dto.MateriaResponseDTO;
+import com.eranitor.tcc.infra.exception.AcessoNegadoException;
 import com.eranitor.tcc.services.MateriaService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,6 +70,8 @@ public class MateriaController {
         try {
             materiaService.deleteMateria(id);
             return ResponseEntity.noContent().build();
+        } catch (AcessoNegadoException e) {
+            throw e;
         } catch (RuntimeException e) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)

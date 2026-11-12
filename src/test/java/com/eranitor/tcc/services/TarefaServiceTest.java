@@ -25,6 +25,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import com.eranitor.tcc.infra.security.OwnershipService;
+import com.eranitor.tcc.repository.TopicoRepository;
+import com.eranitor.tcc.services.ProgressoService;
 
 @ExtendWith(MockitoExtension.class)
 class TarefaServiceTest {
@@ -40,6 +43,15 @@ class TarefaServiceTest {
 
     @Mock
     private PriorizacaoService priorizacaoService;
+
+    @Mock
+    private OwnershipService ownershipService;
+
+    @Mock
+    private TopicoRepository topicoRepository;
+
+    @Mock
+    private ProgressoService progressoService;
 
     @InjectMocks
     private TarefaService service;

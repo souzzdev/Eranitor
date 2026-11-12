@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import com.eranitor.tcc.infra.security.OwnershipService;
 
 @ExtendWith(MockitoExtension.class)
 class MetaServiceTest {
@@ -37,6 +38,9 @@ class MetaServiceTest {
 
     @Mock
     private ProgressoService progressoService;
+
+    @Mock
+    private OwnershipService ownershipService;
 
     @InjectMocks
     private MetaService service;

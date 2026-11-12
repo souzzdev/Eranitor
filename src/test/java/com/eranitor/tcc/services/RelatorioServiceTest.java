@@ -26,6 +26,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
+import com.eranitor.tcc.infra.security.OwnershipService;
+import com.eranitor.tcc.repository.MateriaRepository;
 
 @ExtendWith(MockitoExtension.class)
 class RelatorioServiceTest {
@@ -41,6 +43,12 @@ class RelatorioServiceTest {
 
     @Mock
     private AgendaRepository agendaRepository;
+
+    @Mock
+    private OwnershipService ownershipService;
+
+    @Mock
+    private MateriaRepository materiaRepository;
 
     @InjectMocks
     private RelatorioService service;

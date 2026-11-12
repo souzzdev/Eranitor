@@ -4,6 +4,7 @@ import com.eranitor.tcc.dto.MateriaDTO;
 import com.eranitor.tcc.dto.MateriaResponseDTO;
 import com.eranitor.tcc.entity.Materia;
 import com.eranitor.tcc.entity.Usuario;
+import com.eranitor.tcc.infra.security.OwnershipService;
 import com.eranitor.tcc.mapper.MateriaMapper;
 import com.eranitor.tcc.repository.MateriaRepository;
 import com.eranitor.tcc.repository.UsuarioRepository;
@@ -24,8 +25,13 @@ public class MateriaService {
     @Autowired
     private MateriaMapper materiaMapper;
 
+    @Autowired
+    private OwnershipService ownership;
+
 
     public void cadastrarMateria(MateriaDTO dto, Long usuarioId) {
+        ownership.exigirUsuario(usuarioId);
+
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
 
@@ -43,6 +49,8 @@ public class MateriaService {
     }
 
     public MateriaResponseDTO updateMateria(MateriaDTO dto, Long usuarioId, Long id) {
+        ownership.exigirUsuario(usuarioId);
+
         Materia materia = materiaRepository.findByIdMateriaAndUsuario_IdUsuario(id, usuarioId)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Matéria não encontrada ou não pertence ao usuário!"
@@ -68,10 +76,14 @@ public class MateriaService {
         Materia materia = materiaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Matéria não encontrada!"));
 
+        ownership.exigirDono(materia.getUsuario());
+
         materiaRepository.deleteById(id);
     }
 
     public List<MateriaResponseDTO> getTodasMaterias(Long usuarioId) {
+        ownership.exigirUsuario(usuarioId);
+
         return materiaRepository.findAllByUsuario_IdUsuario(usuarioId)
                 .stream()
                 .map(materiaMapper::toResponseDTO)
@@ -80,6 +92,8 @@ public class MateriaService {
     }
 
     public List<MateriaResponseDTO> getMateriasAtivas(Long usuarioId) {
+        ownership.exigirUsuario(usuarioId);
+
         return materiaRepository.findAllByUsuario_IdUsuarioAndAtivaTrue(usuarioId)
                 .stream()
                 .map(materiaMapper::toResponseDTO)

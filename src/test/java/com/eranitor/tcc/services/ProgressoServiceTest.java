@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
+import com.eranitor.tcc.infra.security.OwnershipService;
 
 @ExtendWith(MockitoExtension.class)
 class ProgressoServiceTest {
@@ -33,6 +34,9 @@ class ProgressoServiceTest {
 
     @Mock
     private DesempenhoRepository desempenhoRepository;
+
+    @Mock
+    private OwnershipService ownershipService;
 
     @InjectMocks
     private ProgressoService service;

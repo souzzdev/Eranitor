@@ -2,6 +2,7 @@ package com.eranitor.tcc.services;
 
 import com.eranitor.tcc.dto.*;
 import com.eranitor.tcc.entity.Usuario;
+import com.eranitor.tcc.infra.security.OwnershipService;
 import com.eranitor.tcc.mapper.UsuarioMapper;
 import com.eranitor.tcc.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +24,13 @@ public class UsuarioService {
     @Autowired
     private UsuarioMapper usuarioMapper;
 
+    @Autowired
+    private OwnershipService ownership;
+
 
     public ResponseEntity<?> findByLogin(String login) {
+        ownership.exigirLogin(login);
+
         Optional<Usuario> usuario = repository.findByEmail(login);
 
         if (usuario.isEmpty()) {
@@ -40,6 +46,8 @@ public class UsuarioService {
     }
 
     public UsuarioResponseDTO getPerfil (String email) {
+        ownership.exigirLogin(email);
+
         Usuario usuario = repository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
@@ -47,6 +55,8 @@ public class UsuarioService {
     }
 
     public UsuarioResponseDTO updatePerfil (String email, AtualizarPerfilDTO dto) {
+        ownership.exigirLogin(email);
+
         Usuario usuario = repository.findByEmail(email)
                 .orElseThrow(() ->
                         new RuntimeException("Usuário não encontrado"));
@@ -58,6 +68,8 @@ public class UsuarioService {
     }
 
     public void alterarEmail(String emailAtual, AlterarEmailDTO dto) {
+        ownership.exigirLogin(emailAtual);
+
         Usuario usuario = repository.findByEmail(emailAtual)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
@@ -74,6 +86,8 @@ public class UsuarioService {
     }
 
     public void alterarSenha (Long id, AlterarSenhaDTO dto) {
+        ownership.exigirUsuario(id);
+
         Usuario usuario = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 

@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import com.eranitor.tcc.infra.security.OwnershipService;
 
 @ExtendWith(MockitoExtension.class)
 class MateriaServiceTest {
@@ -34,6 +35,9 @@ class MateriaServiceTest {
 
     @Mock
     private MateriaMapper materiaMapper;
+
+    @Mock
+    private OwnershipService ownershipService;
 
     @InjectMocks
     private MateriaService service;

@@ -3,6 +3,7 @@ package com.eranitor.tcc.controller;
 import com.eranitor.tcc.dto.ErrorResponseDTO;
 import com.eranitor.tcc.dto.TempoEstudoRegistroDTO;
 import com.eranitor.tcc.dto.TempoEstudoDTO;
+import com.eranitor.tcc.infra.exception.AcessoNegadoException;
 import com.eranitor.tcc.services.TempoEstudoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,6 +33,8 @@ public class TempoEstudoController {
             return ResponseEntity
                     .status(HttpStatus.CREATED)
                     .body(tempoEstudoService.registrarTempo(dto, usuarioId));
+        } catch (AcessoNegadoException e) {
+            throw e;
         } catch (RuntimeException e) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)

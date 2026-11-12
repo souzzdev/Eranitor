@@ -4,6 +4,7 @@ import com.eranitor.tcc.dto.NotificacaoDTO;
 import com.eranitor.tcc.dto.TarefaResponseDTO;
 import com.eranitor.tcc.entity.Tarefa;
 import com.eranitor.tcc.entity.Usuario;
+import com.eranitor.tcc.infra.security.OwnershipService;
 import com.eranitor.tcc.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,9 @@ public class NotificacaoService {
 
     @Autowired
     private PriorizacaoService priorizacaoService;
+
+    @Autowired
+    private OwnershipService ownership;
 
     public NotificacaoDTO gerarMensagemDiaria(Long usuarioId) {
         validarUsuario(usuarioId);
@@ -63,6 +67,8 @@ public class NotificacaoService {
     }
 
     private void validarUsuario(Long usuarioId) {
+        ownership.exigirUsuario(usuarioId);
+
         if (!usuarioRepository.existsById(usuarioId)) {
             throw new RuntimeException("Usuário não encontrado");
         }

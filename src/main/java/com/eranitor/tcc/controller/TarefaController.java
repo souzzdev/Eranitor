@@ -4,6 +4,7 @@ import com.eranitor.tcc.dto.ErrorResponseDTO;
 import com.eranitor.tcc.dto.TarefaDTO;
 import com.eranitor.tcc.dto.TarefaPriorizadaDTO;
 import com.eranitor.tcc.dto.TarefaResponseDTO;
+import com.eranitor.tcc.infra.exception.AcessoNegadoException;
 import com.eranitor.tcc.services.TarefaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -44,6 +45,8 @@ public class TarefaController {
         try {
             tarefaService.createTarefa(usuarioId, materiaId, dto);
             return ResponseEntity.status(HttpStatus.CREATED).build();
+        } catch (AcessoNegadoException e) {
+            throw e;
         } catch (RuntimeException e) {
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)
@@ -62,6 +65,8 @@ public class TarefaController {
         try {
             tarefaService.updateTarefa(id, dto);
             return ResponseEntity.ok().build();
+        } catch (AcessoNegadoException e) {
+            throw e;
         } catch (RuntimeException e) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
@@ -79,6 +84,8 @@ public class TarefaController {
         try {
             tarefaService.completarTarefa(id);
             return ResponseEntity.ok().build();
+        } catch (AcessoNegadoException e) {
+            throw e;
         } catch (RuntimeException e) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
@@ -96,6 +103,8 @@ public class TarefaController {
         try {
             tarefaService.reabrirTarefa(id);
             return ResponseEntity.ok().build();
+        } catch (AcessoNegadoException e) {
+            throw e;
         } catch (RuntimeException e) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
@@ -113,6 +122,8 @@ public class TarefaController {
         try {
             tarefaService.deleteTarefa(id);
             return ResponseEntity.noContent().build();
+        } catch (AcessoNegadoException e) {
+            throw e;
         } catch (RuntimeException e) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)

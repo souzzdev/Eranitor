@@ -2,6 +2,7 @@ package com.eranitor.tcc.services;
 
 import com.eranitor.tcc.entity.Materia;
 import com.eranitor.tcc.entity.Tarefa;
+import com.eranitor.tcc.infra.security.OwnershipService;
 import com.eranitor.tcc.repository.TarefaRepository;
 import org.springframework.stereotype.Service;
 
@@ -14,10 +15,12 @@ public class PriorizacaoService {
 
     private final TarefaRepository tarefaRepository;
     private final ProgressoService progressoService;
+    private final OwnershipService ownership;
 
-    public PriorizacaoService(TarefaRepository tarefaRepository, ProgressoService progressoService) {
+    public PriorizacaoService(TarefaRepository tarefaRepository, ProgressoService progressoService, OwnershipService ownership) {
         this.tarefaRepository = tarefaRepository;
         this.progressoService = progressoService;
+        this.ownership = ownership;
     }
 
     public double calcularAtraso(LocalDate dataVencimento, boolean concluida) {
@@ -71,6 +74,8 @@ public class PriorizacaoService {
 
     private List<Tarefa> buscarTarefasDoUsuario(Long usuarioId) {
         Objects.requireNonNull(usuarioId, "O ID do usuário não pode ser nulo.");
+
+        ownership.exigirUsuario(usuarioId);
 
         return tarefaRepository.findByUsuarioIdUsuario(usuarioId);
     }

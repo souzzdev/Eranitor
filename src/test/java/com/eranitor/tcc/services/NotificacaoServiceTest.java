@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
+import com.eranitor.tcc.infra.security.OwnershipService;
 
 @ExtendWith(MockitoExtension.class)
 class NotificacaoServiceTest {
@@ -28,6 +29,9 @@ class NotificacaoServiceTest {
 
     @Mock
     private PriorizacaoService priorizacaoService;
+
+    @Mock
+    private OwnershipService ownershipService;
 
     @InjectMocks
     private NotificacaoService service;
