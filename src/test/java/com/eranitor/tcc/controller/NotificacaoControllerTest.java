@@ -1,6 +1,7 @@
 package com.eranitor.tcc.controller;
 
 import com.eranitor.tcc.dto.NotificacaoDTO;
+import com.eranitor.tcc.dto.TarefaResponseDTO;
 import com.eranitor.tcc.infra.security.TokenService;
 import com.eranitor.tcc.repository.UsuarioRepository;
 import com.eranitor.tcc.services.NotificacaoService;
@@ -48,10 +49,20 @@ class NotificacaoControllerTest {
     @Test
     void buscarTarefasProximas_deveRetornarLista() throws Exception {
         given(notificacaoService.buscarTarefasProximas(1L))
-                .willReturn(List.of());
+                .willReturn(List.of(new TarefaResponseDTO(
+                        1L,
+                        "Entregar projeto",
+                        "Finalizar a documentação",
+                        java.time.LocalDate.of(2026, 11, 20),
+                        "#FF0000",
+                        false,
+                        1L
+                )));
 
         mockMvc.perform(get("/notificacoes/tarefas-proximas/1"))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].idTarefa").value(1))
+                .andExpect(jsonPath("$[0].materiaId").value(1));
     }
 
     @Test

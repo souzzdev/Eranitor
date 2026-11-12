@@ -1,6 +1,7 @@
 package com.eranitor.tcc.entity;
 
 import com.eranitor.tcc.enums.UsuarioRole;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -34,6 +35,7 @@ public class Usuario implements UserDetails {
     @Column(name = "login", nullable = false, unique = true)
     private String email;
 
+    @JsonIgnore
     @Column (name = "senhahash")
     private String password;
 
@@ -55,12 +57,15 @@ public class Usuario implements UserDetails {
 
     }
 
+    @JsonIgnore
     @OneToMany (mappedBy = "usuario", fetch = FetchType.LAZY)
     private List<Desempenho> desempenhos;
 
+    @JsonIgnore
     @OneToMany (mappedBy = "usuario", fetch = FetchType.LAZY)
     private List<Materia> materias;
 
+    @JsonIgnore
     @OneToMany (mappedBy = "usuario", fetch = FetchType.LAZY)
     private List<Agenda> agenda;
 

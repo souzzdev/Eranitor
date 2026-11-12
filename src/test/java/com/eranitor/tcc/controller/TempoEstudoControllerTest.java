@@ -86,7 +86,7 @@ class TempoEstudoControllerTest {
 
     @Test
     void listarPorMateria_deveRetornarLista() throws Exception {
-        given(tempoEstudoService.listarPorTarefa(1L))
+        given(tempoEstudoService.listarPorMateria(1L))
                 .willReturn(List.of(new TempoEstudoDTO(1, 1L, 1L, 10, 2026, 60, 0, 0)));
 
         mockMvc.perform(get("/tempos-estudo/materia/1"))

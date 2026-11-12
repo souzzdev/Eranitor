@@ -1,6 +1,7 @@
 package com.eranitor.tcc.controller;
 
 import com.eranitor.tcc.dto.AuthenticationDTO;
+import com.eranitor.tcc.dto.LoginResponseDTO;
 import com.eranitor.tcc.dto.RegisterDTO;
 import com.eranitor.tcc.infra.security.TokenService;
 import com.eranitor.tcc.repository.UsuarioRepository;
@@ -41,7 +42,8 @@ class AuthenticationControllerTest {
 
     @Test
     void login_deveRetornarTokenQuandoCredenciaisSaoValidas() throws Exception {
-        given(authorizationService.login(any(AuthenticationDTO.class))).willReturn("token-abc");
+        given(authorizationService.login(any(AuthenticationDTO.class)))
+                .willReturn(new LoginResponseDTO("token-abc", null));
 
         mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)

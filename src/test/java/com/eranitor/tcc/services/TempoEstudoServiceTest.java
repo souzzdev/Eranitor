@@ -124,7 +124,7 @@ class TempoEstudoServiceTest {
     }
 
     @Test
-    void listarPorTarefa_deveLancarQuandoMateriaIdNulo() {
-        assertThrows(IllegalArgumentException.class, () -> service.listarPorTarefa(null));
+    void listarPorMateria_deveLancarQuandoMateriaIdNulo() {
+        assertThrows(IllegalArgumentException.class, () -> service.listarPorMateria(null));
     }
 }

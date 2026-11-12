@@ -1,6 +1,7 @@
 package com.eranitor.tcc.services;
 
 import com.eranitor.tcc.dto.AuthenticationDTO;
+import com.eranitor.tcc.dto.LoginResponseDTO;
 import com.eranitor.tcc.dto.RegisterDTO;
 import com.eranitor.tcc.entity.Usuario;
 import com.eranitor.tcc.enums.UsuarioRole;
@@ -34,7 +35,7 @@ public class AuthorizationService {
     @Autowired
     private UsuarioMapper usuarioMapper;
 
-    public String login(AuthenticationDTO data) {
+    public LoginResponseDTO login(AuthenticationDTO data) {
 
         Authentication authentication =
                 authenticationManager.authenticate(
@@ -47,7 +48,12 @@ public class AuthorizationService {
         Usuario usuario =
                 (Usuario) authentication.getPrincipal();
 
-        return tokenService.generateToken(usuario);
+        String token = tokenService.generateToken(usuario);
+
+        return new LoginResponseDTO(
+                token,
+                usuarioMapper.toResponseDTO(usuario)
+        );
     }
 
     public void register(RegisterDTO data) {

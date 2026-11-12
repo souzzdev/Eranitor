@@ -2,6 +2,7 @@ package com.eranitor.tcc.services;
 
 import com.eranitor.tcc.dto.TarefaDTO;
 import com.eranitor.tcc.dto.TarefaPriorizadaDTO;
+import com.eranitor.tcc.dto.TarefaResponseDTO;
 import com.eranitor.tcc.entity.Materia;
 import com.eranitor.tcc.entity.Tarefa;
 import com.eranitor.tcc.repository.MateriaRepository;
@@ -124,11 +125,42 @@ class TarefaServiceTest {
     }
 
     @Test
+    void updateTarefa_deveTrocarMateriaQuandoMateriaIdInformado() {
+        Tarefa tarefa = new Tarefa();
+        tarefa.setIdTarefa(1L);
+        tarefa.setTitulo("X");
+
+        Materia novaMateria = new Materia();
+        novaMateria.setIdMateria(2L);
+
+        when(tarefaRepository.findById(1L)).thenReturn(java.util.Optional.of(tarefa));
+        when(materiaRepository.findById(2L)).thenReturn(java.util.Optional.of(novaMateria));
+
+        service.updateTarefa(1L, new TarefaDTO("Novo", "desc", LocalDate.now(), "#FF0000", 2L));
+
+        assertEquals(2L, tarefa.getMateria().getIdMateria());
+        verify(tarefaRepository).save(tarefa);
+    }
+
+    @Test
+    void getTarefasByUsuario_deveRetornarTodasAsTarefasIncluindoConcluidas() {
+        Tarefa concluida = new Tarefa();
+        concluida.setIdTarefa(1L);
+        concluida.setConcluida(true);
+
+        when(tarefaRepository.findByUsuarioIdUsuario(1L)).thenReturn(List.of(concluida));
+
+        List<TarefaResponseDTO> tarefas = service.getTarefasByUsuario(1L);
+
+        assertEquals(1, tarefas.size());
+        assertEquals(true, tarefas.get(0).concluida());
+    }
+
+    @Test
     void completarTarefa_deveLancarQuandoTarefaNaoEncontrada() {
         when(tarefaRepository.findById(1L)).thenReturn(java.util.Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () ->
-                service.completarTarefa(1L, new TarefaDTO("X", "desc", LocalDate.now(), "#FF0000")));
+        assertThrows(IllegalArgumentException.class, () -> service.completarTarefa(1L));
     }
 
     @Test
@@ -139,9 +171,23 @@ class TarefaServiceTest {
 
         when(tarefaRepository.findById(1L)).thenReturn(java.util.Optional.of(tarefa));
 
-        service.completarTarefa(1L, new TarefaDTO("X", "desc", LocalDate.now(), "#FF0000"));
+        service.completarTarefa(1L);
 
         assertEquals(true, tarefa.getConcluida());
+        verify(tarefaRepository).save(tarefa);
+    }
+
+    @Test
+    void reabrirTarefa_deveMarcarComoNaoConcluida() {
+        Tarefa tarefa = new Tarefa();
+        tarefa.setIdTarefa(1L);
+        tarefa.setConcluida(true);
+
+        when(tarefaRepository.findById(1L)).thenReturn(java.util.Optional.of(tarefa));
+
+        service.reabrirTarefa(1L);
+
+        assertEquals(false, tarefa.getConcluida());
         verify(tarefaRepository).save(tarefa);
     }
 
@@ -156,7 +202,7 @@ class TarefaServiceTest {
     void getTarefasByMateria_deveRetornarListaDoRepositorio() {
         when(tarefaRepository.findByMateriaIdMateria(1L)).thenReturn(Collections.emptyList());
 
-        List<Tarefa> tarefas = service.getTarefasByMateria(1L);
+        List<TarefaResponseDTO> tarefas = service.getTarefasByMateria(1L);
 
         assertNotNull(tarefas);
         assertTrue(tarefas.isEmpty());

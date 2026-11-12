@@ -3,7 +3,7 @@ package com.eranitor.tcc.controller;
 import com.eranitor.tcc.dto.CreateTopicoDTO;
 import com.eranitor.tcc.dto.ErrorResponseDTO;
 import com.eranitor.tcc.dto.TopicoDTO;
-import com.eranitor.tcc.entity.Topico;
+import com.eranitor.tcc.dto.TopicoResponseDTO;
 import com.eranitor.tcc.services.TopicoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,7 +82,7 @@ public class TopicoController {
     }
 
     @GetMapping("/materia/{materiaId}")
-    public ResponseEntity<List<com.eranitor.tcc.entity.Topico>> listarPorMateria(
+    public ResponseEntity<List<TopicoResponseDTO>> listarPorMateria(
             @PathVariable Long materiaId) {
 
         return ResponseEntity.ok(

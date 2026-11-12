@@ -84,13 +84,24 @@ class MateriaControllerTest {
 
     @Test
     void listarMaterias_deveRetornarLista() throws Exception {
+        given(materiaService.getTodasMaterias(1L))
+                .willReturn(java.util.List.of(new MateriaResponseDTO(1L, "Matemática", true, 3)));
+
         mockMvc.perform(get("/materias/usuario/1"))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].idMateria").value(1))
+                .andExpect(jsonPath("$[0].nome").value("Matemática"))
+                .andExpect(jsonPath("$[0].ativa").value(true))
+                .andExpect(jsonPath("$[0].dificuldade").value(3));
     }
 
     @Test
     void listarMateriasAtivas_deveRetornarLista() throws Exception {
+        given(materiaService.getMateriasAtivas(1L))
+                .willReturn(java.util.List.of(new MateriaResponseDTO(1L, "Matemática", true, 3)));
+
         mockMvc.perform(get("/materias/usuario/1/ativas"))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].idMateria").value(1));
     }
 }

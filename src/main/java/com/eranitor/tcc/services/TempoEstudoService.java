@@ -97,7 +97,7 @@ public class TempoEstudoService {
                 .toList();
     }
 
-    public List<TempoEstudoDTO> listarPorTarefa (Long materiaId) {
+    public List<TempoEstudoDTO> listarPorMateria (Long materiaId) {
         if (materiaId == null) {
             throw new IllegalArgumentException("A matéria não pode ser nula.");
         }

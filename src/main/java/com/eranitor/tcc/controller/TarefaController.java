@@ -3,7 +3,7 @@ package com.eranitor.tcc.controller;
 import com.eranitor.tcc.dto.ErrorResponseDTO;
 import com.eranitor.tcc.dto.TarefaDTO;
 import com.eranitor.tcc.dto.TarefaPriorizadaDTO;
-import com.eranitor.tcc.entity.Tarefa;
+import com.eranitor.tcc.dto.TarefaResponseDTO;
 import com.eranitor.tcc.services.TarefaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -74,11 +74,27 @@ public class TarefaController {
 
     @PostMapping("/{id}/concluir")
     public ResponseEntity<?> concluir(
-            @PathVariable Long id,
-            @RequestBody TarefaDTO dto) {
+            @PathVariable Long id) {
 
         try {
-            tarefaService.completarTarefa(id, dto);
+            tarefaService.completarTarefa(id);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponseDTO(
+                            HttpStatus.NOT_FOUND.value(),
+                            e.getMessage()
+                    ));
+        }
+    }
+
+    @PostMapping("/{id}/reabrir")
+    public ResponseEntity<?> reabrir(
+            @PathVariable Long id) {
+
+        try {
+            tarefaService.reabrirTarefa(id);
             return ResponseEntity.ok().build();
         } catch (RuntimeException e) {
             return ResponseEntity
@@ -108,7 +124,7 @@ public class TarefaController {
     }
 
     @GetMapping("/materia/{materiaId}")
-    public ResponseEntity<List<Tarefa>> listarPorMateria(
+    public ResponseEntity<List<TarefaResponseDTO>> listarPorMateria(
             @PathVariable Long materiaId) {
 
         return ResponseEntity.ok(
@@ -117,11 +133,20 @@ public class TarefaController {
     }
 
     @GetMapping("/topico/{topicoId}")
-    public ResponseEntity<List<Tarefa>> listarPorTopico(
+    public ResponseEntity<List<TarefaResponseDTO>> listarPorTopico(
             @PathVariable Long topicoId) {
 
         return ResponseEntity.ok(
                 tarefaService.getTarefasByTopico(topicoId)
+        );
+    }
+
+    @GetMapping("/usuario/{usuarioId}")
+    public ResponseEntity<List<TarefaResponseDTO>> listarPorUsuario(
+            @PathVariable Long usuarioId) {
+
+        return ResponseEntity.ok(
+                tarefaService.getTarefasByUsuario(usuarioId)
         );
     }
 }

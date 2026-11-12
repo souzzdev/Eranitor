@@ -1,6 +1,7 @@
 package com.eranitor.tcc.services;
 
 import com.eranitor.tcc.dto.NotificacaoDTO;
+import com.eranitor.tcc.dto.TarefaResponseDTO;
 import com.eranitor.tcc.entity.Tarefa;
 import com.eranitor.tcc.entity.Usuario;
 import com.eranitor.tcc.repository.UsuarioRepository;
@@ -38,10 +39,13 @@ public class NotificacaoService {
         return new NotificacaoDTO(mensagem, desempenho, nomesTarefas);
     }
 
-    public List<Tarefa> buscarTarefasProximas(Long usuarioId) {
+    public List<TarefaResponseDTO> buscarTarefasProximas(Long usuarioId) {
         validarUsuario(usuarioId);
 
-        return priorizacaoService.getTarefasProximas(usuarioId, 3);
+        return priorizacaoService.getTarefasProximas(usuarioId, 3)
+                .stream()
+                .map(TarefaResponseDTO::from)
+                .toList();
     }
 
     public Double buscarDesempenhoPercentual(Long usuarioId) {

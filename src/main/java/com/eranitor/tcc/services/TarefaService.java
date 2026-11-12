@@ -2,6 +2,7 @@ package com.eranitor.tcc.services;
 
 import com.eranitor.tcc.dto.TarefaDTO;
 import com.eranitor.tcc.dto.TarefaPriorizadaDTO;
+import com.eranitor.tcc.dto.TarefaResponseDTO;
 import com.eranitor.tcc.dto.TopicoDTO;
 import com.eranitor.tcc.entity.Materia;
 import com.eranitor.tcc.entity.Tarefa;
@@ -100,15 +101,31 @@ public class TarefaService {
         tarefa.setDataVencimento(dto.dataVencimento());
         tarefa.setCor(dto.cor());
 
+        if (dto.materiaId() != null) {
+            Materia materia = materiaRepository.findById(dto.materiaId())
+                    .orElseThrow(() -> new IllegalArgumentException("Matéria não encontrada."));
+
+            tarefa.setMateria(materia);
+        }
+
         tarefaRepository.save(tarefa);
 
     }
 
-    public void completarTarefa(Long id, TarefaDTO dto) {
+    public void completarTarefa(Long id) {
         Tarefa tarefa = tarefaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Tarefa não encontrada."));
 
         tarefa.setConcluida(true);
+
+        tarefaRepository.save(tarefa);
+    }
+
+    public void reabrirTarefa(Long id) {
+        Tarefa tarefa = tarefaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Tarefa não encontrada."));
+
+        tarefa.setConcluida(false);
 
         tarefaRepository.save(tarefa);
     }
@@ -120,12 +137,25 @@ public class TarefaService {
         tarefaRepository.deleteById(id);
     }
 
-    public List<Tarefa> getTarefasByMateria(Long materiaId) {
-        return tarefaRepository.findByMateriaIdMateria(materiaId);
+    public List<TarefaResponseDTO> getTarefasByMateria(Long materiaId) {
+        return tarefaRepository.findByMateriaIdMateria(materiaId)
+                .stream()
+                .map(TarefaResponseDTO::from)
+                .toList();
     }
 
-    public List<Tarefa> getTarefasByTopico(Long topicoId) {
-        return tarefaRepository.findByTopicoIdTopico(topicoId);
+    public List<TarefaResponseDTO> getTarefasByTopico(Long topicoId) {
+        return tarefaRepository.findByTopicoIdTopico(topicoId)
+                .stream()
+                .map(TarefaResponseDTO::from)
+                .toList();
+    }
+
+    public List<TarefaResponseDTO> getTarefasByUsuario(Long usuarioId) {
+        return tarefaRepository.findByUsuarioIdUsuario(usuarioId)
+                .stream()
+                .map(TarefaResponseDTO::from)
+                .toList();
     }
 
     /*

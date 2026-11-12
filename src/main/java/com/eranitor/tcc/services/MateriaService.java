@@ -71,13 +71,19 @@ public class MateriaService {
         materiaRepository.deleteById(id);
     }
 
-    public List<Materia> getTodasMaterias(Long usuarioId) {
-        return materiaRepository.findAllByUsuario_IdUsuario(usuarioId);
+    public List<MateriaResponseDTO> getTodasMaterias(Long usuarioId) {
+        return materiaRepository.findAllByUsuario_IdUsuario(usuarioId)
+                .stream()
+                .map(materiaMapper::toResponseDTO)
+                .toList();
 
     }
 
-    public List<Materia> getMateriasAtivas(Long usuarioId) {
-        return materiaRepository.findAllByUsuario_IdUsuarioAndAtivaTrue(usuarioId);
+    public List<MateriaResponseDTO> getMateriasAtivas(Long usuarioId) {
+        return materiaRepository.findAllByUsuario_IdUsuarioAndAtivaTrue(usuarioId)
+                .stream()
+                .map(materiaMapper::toResponseDTO)
+                .toList();
     }
 
 

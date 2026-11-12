@@ -5,10 +5,12 @@ import com.eranitor.tcc.dto.AlterarSenhaDTO;
 import com.eranitor.tcc.dto.AtualizarPerfilDTO;
 import com.eranitor.tcc.dto.UsuarioResponseDTO;
 import com.eranitor.tcc.dto.ErrorResponseDTO;
+import com.eranitor.tcc.entity.Usuario;
 import com.eranitor.tcc.services.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,6 +40,17 @@ public class UsuarioController {
 
         return ResponseEntity.ok(
                 usuarioService.getPerfil(email)
+        );
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UsuarioResponseDTO> getMe(
+            Authentication authentication) {
+
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+
+        return ResponseEntity.ok(
+                usuarioService.getPerfil(usuario.getEmail())
         );
     }
 

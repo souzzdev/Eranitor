@@ -2,6 +2,7 @@ package com.eranitor.tcc.services;
 
 import com.eranitor.tcc.dto.CreateTopicoDTO;
 import com.eranitor.tcc.dto.TopicoDTO;
+import com.eranitor.tcc.dto.TopicoResponseDTO;
 import com.eranitor.tcc.entity.Materia;
 import com.eranitor.tcc.entity.Topico;
 import com.eranitor.tcc.repository.MateriaRepository;
@@ -62,8 +63,11 @@ public class TopicoService {
         topicoRepository.deleteById(id);
     }
 
-    public List<Topico> getTopicosByMateria(Long materiaId) {
-        return topicoRepository.findAllByMateria_IdMateria(materiaId);
+    public List<TopicoResponseDTO> getTopicosByMateria(Long materiaId) {
+        return topicoRepository.findAllByMateria_IdMateria(materiaId)
+                .stream()
+                .map(TopicoResponseDTO::from)
+                .toList();
     }
 
     public void marcarConcluido(Long id) {

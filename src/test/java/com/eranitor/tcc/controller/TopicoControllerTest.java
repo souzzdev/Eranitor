@@ -3,6 +3,7 @@ package com.eranitor.tcc.controller;
 import com.eranitor.tcc.dto.CreateTopicoDTO;
 import com.eranitor.tcc.dto.ErrorResponseDTO;
 import com.eranitor.tcc.dto.TopicoDTO;
+import com.eranitor.tcc.dto.TopicoResponseDTO;
 import com.eranitor.tcc.infra.security.TokenService;
 import com.eranitor.tcc.repository.UsuarioRepository;
 import com.eranitor.tcc.services.TopicoService;
@@ -16,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -85,7 +87,13 @@ class TopicoControllerTest {
 
     @Test
     void listarTopicos_deveRetornarLista() throws Exception {
+        given(topicoService.getTopicosByMateria(1L))
+                .willReturn(java.util.List.of(new TopicoResponseDTO(1L, "Top", false)));
+
         mockMvc.perform(get("/topicos/materia/1"))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].idTopico").value(1))
+                .andExpect(jsonPath("$[0].nome").value("Top"))
+                .andExpect(jsonPath("$[0].concluido").value(false));
     }
 }

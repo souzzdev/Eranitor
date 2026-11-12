@@ -16,6 +16,13 @@ public record TarefaDTO(
    LocalDate dataVencimento,
 
    @NotBlank(message = "A cor deve ser definida.")
-   String cor
+   String cor,
 
-) {}
+   Long materiaId
+
+) {
+
+   public TarefaDTO(String titulo, String descricao, LocalDate dataVencimento, String cor) {
+       this(titulo, descricao, dataVencimento, cor, null);
+   }
+}

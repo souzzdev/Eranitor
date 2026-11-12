@@ -1,6 +1,7 @@
 package com.eranitor.tcc.services;
 
 import com.eranitor.tcc.dto.AuthenticationDTO;
+import com.eranitor.tcc.dto.LoginResponseDTO;
 import com.eranitor.tcc.dto.RegisterDTO;
 import com.eranitor.tcc.entity.Usuario;
 import com.eranitor.tcc.infra.security.TokenService;
@@ -58,10 +59,10 @@ class AuthorizationServiceTest {
                 .thenReturn(authentication);
         when(tokenService.generateToken(usuario)).thenReturn("token-abc");
 
-        String token = service.login(new AuthenticationDTO("guilherme@exemplo.com", "SenhaForte@123"));
+        LoginResponseDTO login = service.login(new AuthenticationDTO("guilherme@exemplo.com", "SenhaForte@123"));
 
-        assertNotNull(token);
-        assertEquals("token-abc", token);
+        assertNotNull(login);
+        assertEquals("token-abc", login.token());
     }
 
     @Test

@@ -1,9 +1,8 @@
 package com.eranitor.tcc.controller;
 
-import com.eranitor.tcc.dto.ErrorResponseDTO;
 import com.eranitor.tcc.dto.TarefaDTO;
 import com.eranitor.tcc.dto.TarefaPriorizadaDTO;
-import com.eranitor.tcc.entity.Tarefa;
+import com.eranitor.tcc.dto.TarefaResponseDTO;
 import com.eranitor.tcc.infra.security.TokenService;
 import com.eranitor.tcc.repository.UsuarioRepository;
 import com.eranitor.tcc.services.TarefaService;
@@ -135,17 +134,14 @@ class TarefaControllerTest {
     }
 
     @Test
-    void concluirTarefa_deveRetornar200() throws Exception {
-        mockMvc.perform(post("/tarefas/1/concluir")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                    "titulo": "Entregar projeto",
-                                    "descricao": "Finalizar a documentação",
-                                    "dataVencimento": "2026-11-20",
-                                    "cor": "#FF0000"
-                                }
-                                """))
+    void concluirTarefa_deveRetornar200SemBody() throws Exception {
+        mockMvc.perform(post("/tarefas/1/concluir"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void reabrirTarefa_deveRetornar200SemBody() throws Exception {
+        mockMvc.perform(post("/tarefas/1/reabrir"))
                 .andExpect(status().isOk());
     }
 
@@ -167,7 +163,39 @@ class TarefaControllerTest {
 
     @Test
     void listarTarefasPorMateria_deveRetornarLista() throws Exception {
+        given(tarefaService.getTarefasByMateria(1L))
+                .willReturn(List.of(new TarefaResponseDTO(
+                        1L,
+                        "Entregar projeto",
+                        "Finalizar a documentação",
+                        LocalDate.of(2026, 11, 20),
+                        "#FF0000",
+                        false,
+                        1L
+                )));
+
         mockMvc.perform(get("/tarefas/materia/1"))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].idTarefa").value(1))
+                .andExpect(jsonPath("$[0].concluida").value(false))
+                .andExpect(jsonPath("$[0].materiaId").value(1));
+    }
+
+    @Test
+    void listarTarefasPorUsuario_deveRetornarLista() throws Exception {
+        given(tarefaService.getTarefasByUsuario(1L))
+                .willReturn(List.of(new TarefaResponseDTO(
+                        1L,
+                        "Entregar projeto",
+                        "Finalizar a documentação",
+                        LocalDate.of(2026, 11, 20),
+                        "#FF0000",
+                        true,
+                        1L
+                )));
+
+        mockMvc.perform(get("/tarefas/usuario/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].concluida").value(true));
     }
 }

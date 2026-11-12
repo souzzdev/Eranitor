@@ -25,10 +25,8 @@ public class AuthenticationController {
 
         try {
 
-            String token = authorizationService.login(data);
-
             return ResponseEntity.ok(
-                    new LoginResponseDTO(token)
+                    authorizationService.login(data)
             );
 
         } catch (BadCredentialsException e) {
@@ -82,7 +80,7 @@ public class AuthenticationController {
                 authorizationService.refreshToken(authHeader);
 
         return ResponseEntity.ok(
-                new LoginResponseDTO(novoToken)
+                new LoginResponseDTO(novoToken, null)
         );
     }
 }

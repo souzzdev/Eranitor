@@ -1,7 +1,7 @@
 package com.eranitor.tcc.controller;
 
 import com.eranitor.tcc.dto.NotificacaoDTO;
-import com.eranitor.tcc.entity.Tarefa;
+import com.eranitor.tcc.dto.TarefaResponseDTO;
 import com.eranitor.tcc.services.NotificacaoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +29,7 @@ public class NotificacaoController {
     }
 
     @GetMapping("/tarefas-proximas/{usuarioId}")
-    public ResponseEntity<List<Tarefa>> tarefasProximas(
+    public ResponseEntity<List<TarefaResponseDTO>> tarefasProximas(
             @PathVariable Long usuarioId) {
 
         return ResponseEntity.ok(

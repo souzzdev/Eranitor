@@ -56,7 +56,7 @@ public class TempoEstudoController {
             @PathVariable Long materiaId) {
 
         return ResponseEntity.ok(
-                tempoEstudoService.listarPorTarefa(materiaId)
+                tempoEstudoService.listarPorMateria(materiaId)
         );
     }
 }
