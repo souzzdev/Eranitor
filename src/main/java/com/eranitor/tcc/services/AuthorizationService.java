@@ -52,6 +52,7 @@ public class AuthorizationService {
 
         return new LoginResponseDTO(
                 token,
+                tokenService.generateRefreshToken(usuario),
                 usuarioMapper.toResponseDTO(usuario)
         );
     }
@@ -87,7 +88,7 @@ public class AuthorizationService {
         }
     }
 
-    public String refreshToken(
+    public LoginResponseDTO refreshToken(
             String authHeader) {
 
         if (authHeader == null ||
@@ -120,7 +121,11 @@ public class AuthorizationService {
                                         "Usuário não encontrado"
                                 ));
 
-        return tokenService.generateToken(usuario);
+        return new LoginResponseDTO(
+                tokenService.generateToken(usuario),
+                tokenService.generateRefreshToken(usuario),
+                usuarioMapper.toResponseDTO(usuario)
+        );
     }
 
 

@@ -76,11 +76,8 @@ public class AuthenticationController {
     public ResponseEntity<?> refreshToken(
             @RequestHeader("Authorization") String authHeader) {
 
-        String novoToken =
-                authorizationService.refreshToken(authHeader);
-
         return ResponseEntity.ok(
-                new LoginResponseDTO(novoToken, null)
+                authorizationService.refreshToken(authHeader)
         );
     }
 }

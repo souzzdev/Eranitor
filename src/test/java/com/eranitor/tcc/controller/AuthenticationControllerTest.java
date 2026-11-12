@@ -116,11 +116,13 @@ class AuthenticationControllerTest {
 
     @Test
     void refresh_deveRetornarNovoToken() throws Exception {
-        given(authorizationService.refreshToken("Bearer token-abc")).willReturn("novo-token");
+        given(authorizationService.refreshToken("Bearer token-abc"))
+                .willReturn(new LoginResponseDTO("novo-token", "novo-refresh", null));
 
         mockMvc.perform(post("/auth/refresh")
                         .header("Authorization", "Bearer token-abc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").value("novo-token"));
+                .andExpect(jsonPath("$.token").value("novo-token"))
+                .andExpect(jsonPath("$.refreshToken").value("novo-refresh"));
     }
 }

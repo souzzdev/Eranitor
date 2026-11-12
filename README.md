@@ -269,52 +269,109 @@ Desempenho
 
 ## 📡 API REST — Endpoints Principais
 
+Base local: `http://localhost:8080`.
+Documentação interativa: `http://localhost:8080/swagger-ui.html` (JSON em `/v3/api-docs`).
+
+Todas as rotas, exceto `/auth/**` e a documentação, exigem
+`Authorization: Bearer <token>`.
+
+> **Ownership:** as rotas que recebem `{usuarioId}` ou o `{id}` de um recurso
+> validam que o recurso pertence ao usuário autenticado. Tentar acessar dado de
+> outro usuário retorna **403** com corpo JSON (`ErrorResponseDTO`).
+
 ### Autenticação
 ```http
-POST   /auth/register         # Criar nova conta
-POST   /auth/login            # Fazer login
-POST   /auth/refresh          # Renovar JWT
+POST   /auth/register    # Criar conta
+POST   /auth/login       # Login → { token, refreshToken, usuario }
+POST   /auth/refresh     # Renovar tokens (envie o token atual no header)
+GET    /auth/validate    # Validar token
 ```
+
+- `token`: acesso, validade padrão de **2h**.
+- `refreshToken`: renovação, validade padrão de **30 dias**.
+- Tokens de acesso (e tokens legados) também podem ser usados em `/auth/refresh`,
+  mas apenas dentro da janela de renovação (`api.security.refresh.window-days`, padrão 7 dias).
 
 ### Usuário
 ```http
-GET    /usuarios/{id}         # Obter perfil
-PUT    /usuarios/{id}         # Atualizar perfil
-PUT    /usuarios/{id}/senha   # Alterar senha
+GET    /usuarios/me                 # Perfil do usuário autenticado
+GET    /usuarios/perfil             # Perfil do usuário autenticado
+PUT    /usuarios/perfil             # Atualizar perfil
+POST   /usuarios/email              # Alterar e-mail
+POST   /usuarios/{id}/senha         # Alterar senha
+GET    /usuarios/login/{login}      # Buscar por e-mail (somente o próprio)
 ```
 
 ### Matérias
 ```http
-GET    /usuarios/{id}/materias         # Listar matérias
-POST   /usuarios/{id}/materias         # Criar matéria
-PUT    /usuarios/{id}/materias/{id}    # Editar matéria
-DELETE /usuarios/{id}/materias/{id}    # Deletar matéria
+GET    /materias/usuario/{usuarioId}          # Listar matérias
+GET    /materias/usuario/{usuarioId}/ativas   # Listar matérias ativas
+POST   /materias/usuario/{usuarioId}          # Criar matéria
+PUT    /materias/{id}/usuario/{usuarioId}     # Editar matéria
+DELETE /materias/{id}                         # Remover matéria
+```
+
+### Tópicos
+```http
+GET    /topicos/materia/{materiaId}        # Listar tópicos da matéria
+POST   /topicos/materia/{materiaId}        # Criar tópico
+PUT    /topicos/{id}/materia/{materiaId}   # Editar tópico
+POST   /topicos/{id}/concluir              # Marcar como concluído
+DELETE /topicos/{id}                       # Remover tópico
 ```
 
 ### Tarefas
 ```http
-GET    /usuarios/{id}/tarefas                    # Listar tarefas
-GET    /usuarios/{id}/tarefas/priorizadas       # Tarefas ordenadas por prioridade
-GET    /usuarios/{id}/tarefas/sugestao-diaria   # Top 3 tarefas do dia
-POST   /usuarios/{id}/tarefas                    # Criar tarefa
-PUT    /usuarios/{id}/tarefas/{id}               # Editar tarefa
-DELETE /usuarios/{id}/tarefas/{id}               # Deletar tarefa
-PATCH  /usuarios/{id}/tarefas/{id}/status       # Marcar como completa
-```
-
-### Desempenho
-```http
-GET    /usuarios/{id}/desempenho        # Gráficos de progresso
-GET    /usuarios/{id}/desempenho/tempo  # Horas vs meta
+GET    /tarefas/priorizadas/{usuarioId}                 # Ordenadas por prioridade
+GET    /tarefas/usuario/{usuarioId}                     # Todas do usuário
+GET    /tarefas/materia/{materiaId}                     # Por matéria
+GET    /tarefas/topico/{topicoId}                       # Por tópico
+POST   /tarefas/{usuarioId}/materia/{materiaId}         # Criar tarefa
+PUT    /tarefas/{id}                                    # Editar tarefa
+POST   /tarefas/{id}/concluir                           # Concluir
+POST   /tarefas/{id}/reabrir                            # Reabrir
+DELETE /tarefas/{id}                                    # Remover
 ```
 
 ### Agenda
 ```http
-GET    /usuarios/{id}/agenda        # Eventos do calendário
-POST   /usuarios/{id}/agenda        # Criar evento
-PUT    /usuarios/{id}/agenda/{id}   # Editar evento
-DELETE /usuarios/{id}/agenda/{id}   # Deletar evento
+GET    /agenda/usuario/{usuarioId}   # Eventos do usuário
+POST   /agenda/{usuarioId}           # Criar evento
+PUT    /agenda/{id}                  # Editar evento
+DELETE /agenda/{id}                  # Remover evento
 ```
+
+### Tempo de estudo
+```http
+GET    /tempos-estudo/usuario/{usuarioId}    # Registros do usuário
+GET    /tempos-estudo/materia/{materiaId}    # Registros da matéria
+POST   /tempos-estudo/{usuarioId}            # Registrar tempo
+```
+
+### Desempenho e progresso
+```http
+POST   /desempenho                                                       # Registrar desempenho
+GET    /desempenho/usuario/{usuarioId}/periodo/{mes}/{ano}               # Por período
+GET    /desempenho/usuario/{usuarioId}/materia/{materiaId}/periodo/{mes}/{ano}
+GET    /progresso/usuario/{usuarioId}                                    # Progresso geral
+GET    /progresso/usuario/{usuarioId}/materias                           # Progresso por matéria
+GET    /progresso/materia/{materiaId}                                    # Progresso da matéria
+```
+
+### Metas, notificações e relatórios
+```http
+PUT    /meta/semana/{usuarioId}     # Meta semanal de horas
+PUT    /meta/materia/{usuarioId}    # Meta por matéria
+
+GET    /notificacoes/dia/{usuarioId}
+GET    /notificacoes/tarefas-proximas/{usuarioId}
+GET    /notificacoes/desempenho/{usuarioId}
+
+POST   /relatorios/periodo/{usuarioId}
+POST   /relatorios/materia/{materiaId}
+GET    /relatorios/usuario/{usuarioId}/tempo/{mes}/{ano}
+```
+
 
 ---
 
@@ -333,20 +390,25 @@ DELETE /usuarios/{id}/agenda/{id}   # Deletar evento
 
 ## 🧪 Testes
 
-### Executar testes unitários
+### Executar a suíte completa
 ```bash
 mvn test
 ```
 
-### Executar testes com cobertura
+A suíte roda com o perfil `test` e H2 em memória, sem depender do Supabase:
+
+- **Unitários** — services com Mockito (`src/test/java/.../services`).
+- **Controllers** — `@WebMvcTest` com os filtros desligados (`addFilters = false`).
+- **Integração** — `FluxoAutenticadoIntegrationTest` sobe o contexto completo com JWT real e valida:
+  - `POST` autenticado **sem** `.with(csrf())` → `201`;
+  - `POST` com token de outro usuário → `403` com corpo JSON;
+  - requisição sem token → `401` com corpo JSON;
+  - `/v3/api-docs` e `/swagger-ui/index.html` acessíveis.
+
+### Executar com cobertura
 ```bash
 mvn clean test jacoco:report
 # Abrir: target/site/jacoco/index.html
-```
-
-### Testes de integração
-```bash
-mvn verify
 ```
 
 ---
@@ -381,12 +443,15 @@ mvn verify
 ## 🔒 Segurança
 
 ### Implementado
-- ✅ JWT com refresh token
+- ✅ JWT assinado (HMAC256) enviado no header `Authorization: Bearer <token>`
+- ✅ Refresh token com validade absoluta e janela limitada de renovação
 - ✅ Hash bcrypt para senhas
 - ✅ CORS configurado
+- ✅ CSRF desabilitado de forma consciente (API stateless, sem sessão/cookie de autenticação)
+- ✅ Ownership: cada usuário só acessa os próprios recursos (`403` caso contrário)
+- ✅ `401` e `403` com corpo JSON (`ErrorResponseDTO`)
 - ✅ Validação backend obrigatória
 - ✅ HTTPS (em produção)
-- ✅ HttpOnly cookies para tokens
 
 ### Recomendações para Produção
 - [ ] Implementar rate limiting

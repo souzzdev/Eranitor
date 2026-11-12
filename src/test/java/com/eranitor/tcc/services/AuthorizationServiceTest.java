@@ -101,7 +101,7 @@ class AuthorizationServiceTest {
         when(repository.findByEmail("guilherme@exemplo.com")).thenReturn(Optional.of(usuario));
         when(tokenService.generateToken(usuario)).thenReturn("novo-token");
 
-        String novoToken = service.refreshToken("Bearer token-abc");
+        String novoToken = service.refreshToken("Bearer token-abc").token();
 
         assertEquals("novo-token", novoToken);
     }
