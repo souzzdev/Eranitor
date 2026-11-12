@@ -69,10 +69,10 @@ public class UsuarioController {
         }
     }
 
-    @PostMapping("/senha")
+    @PostMapping("/{id}/senha")
     public ResponseEntity<?> alterarSenha(
-            @RequestBody AlterarSenhaDTO dto,
-            @PathVariable Long id) {
+            @PathVariable Long id,
+            @RequestBody AlterarSenhaDTO dto) {
 
         try {
             usuarioService.alterarSenha(id, dto);
