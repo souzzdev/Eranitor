@@ -470,6 +470,45 @@ mvn clean test jacoco:report
 3. Render detecta `pom.xml` e executa `mvn clean install`
 4. Deploy automático em cada push para `main`
 
+O `application.properties` **não é versionado** (contém segredos). Em produção,
+toda a configuração vem de variáveis de ambiente. Mínimo necessário:
+
+```bash
+SPRING_DATASOURCE_URL=jdbc:postgresql://<host>:<porta>/postgres
+SPRING_DATASOURCE_USERNAME=<usuario>
+SPRING_DATASOURCE_PASSWORD=<senha>
+API_SECURITY_TOKEN_SECRET=<segredo-forte>
+CORS_ALLOWED_ORIGINS=https://<seu-frontend>
+```
+
+Pool de conexões (evita esgotar os clientes do pooler do Supabase):
+
+```bash
+SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE=3
+SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE=1
+SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT=10000
+SPRING_DATASOURCE_HIKARI_VALIDATION_TIMEOUT=3000
+SPRING_DATASOURCE_HIKARI_IDLE_TIMEOUT=300000
+SPRING_DATASOURCE_HIKARI_MAX_LIFETIME=600000
+SPRING_DATASOURCE_HIKARI_KEEPALIVE_TIME=120000
+
+# Recomendado: não segurar a conexão durante toda a renderização da resposta.
+# As relações @ManyToOne são EAGER e os DTOs são montados dentro dos services,
+# então o mapeamento não depende da sessão aberta.
+SPRING_JPA_OPEN_IN_VIEW=false
+```
+
+Regras que evitam o erro intermitente de conexão:
+
+- **Uma instância só.** Cada instância abre o próprio pool; o pooler do
+  Supabase tem limite de clientes por projeto.
+- **Não aponte a aplicação local nem testes para o banco de produção.**
+  `mvn test` usa o perfil `test` com H2. Para desenvolvimento, use um banco
+  local ou outro projeto Supabase.
+- **Session pooler (porta 5432):** mantenha o pool pequeno (3–5).
+  **Transaction pooler (porta 6543):** adicione `?prepareThreshold=0` na URL
+  JDBC (o modo transação não mantém prepared statements entre transações).
+
 ### Frontend (Vercel)
 1. Conectar repositório GitHub ao Vercel
 2. Configurar build command: `ng build --prod`
@@ -478,6 +517,14 @@ mvn clean test jacoco:report
 
 ### Banco de Dados (PostgreSQL Cloud)
 - Sugestão: **Supabase**, **Railway** ou **Render Managed Database**
+
+### Comportamento em falha de banco
+- Falha ao resolver o usuário do token (`SecurityFilter`): **503** JSON com
+  `Retry-After`, nunca 401 (token bom não deve ser tratado como inválido).
+- Falha de conexão/timeout dentro de controller/service: **503** via
+  `GlobalExceptionHandler`.
+- `/error` é público, para que erros internos cheguem como 500/503 com a
+  causa em vez de virarem 401.
 
 ---
 

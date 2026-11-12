@@ -3,8 +3,12 @@ package com.eranitor.tcc.infra.exception;
 import com.eranitor.tcc.dto.ErrorResponseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataAccessResourceFailureException;
+import org.springframework.dao.TransientDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -62,6 +66,48 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
+                .body(error);
+    }
+
+    /**
+     * Banco fora do ar, pool esgotado ou timeout de conexão: é
+     * indisponibilidade temporária, não erro de programação.
+     */
+    @ExceptionHandler({
+            DataAccessResourceFailureException.class,
+            TransientDataAccessException.class
+    })
+    public ResponseEntity<ErrorResponseDTO> handleBancoIndisponivel(DataAccessException ex) {
+        log.error("Falha de acesso ao banco de dados: {}", ex.getMessage(), ex);
+
+        ErrorResponseDTO error = new ErrorResponseDTO(
+                HttpStatus.SERVICE_UNAVAILABLE.value(),
+                "Serviço indisponível no momento. Tente novamente em instantes."
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.SERVICE_UNAVAILABLE)
+                .header("Retry-After", "5")
+                .body(error);
+    }
+
+    /**
+     * Falha ao consultar o banco durante a autenticação (login).
+     */
+    @ExceptionHandler(InternalAuthenticationServiceException.class)
+    public ResponseEntity<ErrorResponseDTO> handleFalhaNaAutenticacao(
+            InternalAuthenticationServiceException ex) {
+
+        log.error("Falha interna ao autenticar: {}", ex.getMessage(), ex);
+
+        ErrorResponseDTO error = new ErrorResponseDTO(
+                HttpStatus.SERVICE_UNAVAILABLE.value(),
+                "Serviço indisponível no momento. Tente novamente em instantes."
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.SERVICE_UNAVAILABLE)
+                .header("Retry-After", "5")
                 .body(error);
     }
 

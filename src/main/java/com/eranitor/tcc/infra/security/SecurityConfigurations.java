@@ -61,6 +61,11 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/refresh").permitAll()
 
+                        // Sem isso, um erro interno é encaminhado para /error,
+                        // que exige autenticação, e o cliente recebe 401 no lugar
+                        // do 500/503 com a causa.
+                        .requestMatchers("/error").permitAll()
+
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
